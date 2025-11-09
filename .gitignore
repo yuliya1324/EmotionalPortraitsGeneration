@@ -1,0 +1,77 @@
+# ======================================
+# Python
+# ======================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+.cache_dir/
+*.cache
+*.egg-info/
+dist/
+build/
+
+# ======================================
+# Datasets
+# ======================================
+data/
+datasets/
+*.zip
+*.tar.gz
+
+# Kaggle downloads
+kaggle.json
+
+# ======================================
+# Model Outputs / Checkpoints
+# ======================================
+lora-output/
+checkpoints/
+output/
+outputs/
+models/
+*.safetensors
+*.ckpt
+*.pt
+
+# Diffusers cached models
+huggingface/
+~/.cache/huggingface/
+hf_cache/
+
+# ======================================
+# Temporary Files
+# ======================================
+tmp/
+temp/
+.DS_Store
+
+# ======================================
+# IDE Files
+# ======================================
+.vscode/
+.idea/
+*.iml
+
+# ======================================
+# OS artifacts
+# ======================================
+Thumbs.db
+Desktop.ini

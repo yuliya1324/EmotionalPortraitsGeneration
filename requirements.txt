@@ -1,0 +1,14 @@
+torch>=2.0.0
+torchvision>=0.15
+Pillow
+numpy
+scipy
+tqdm
+transformers>=4.36
+diffusers>=0.25.0
+accelerate>=0.25.0
+safetensors
+datasets
+huggingface_hub
+opencv-python
+# xformers

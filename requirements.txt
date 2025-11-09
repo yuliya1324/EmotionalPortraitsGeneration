@@ -11,4 +11,7 @@ safetensors
 datasets
 huggingface_hub
 opencv-python
+kagglehub
+wandb
+peft
 # xformers

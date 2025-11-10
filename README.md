@@ -1,6 +1,6 @@
 # EmotionalPortraitsGeneration
 
-Setup environment
+## 1. Setup environment
 
 ```bash
 python -m venv venv
@@ -8,13 +8,15 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Preprocess dataset
+## 2. Preprocess dataset
 
 ```bash
 python prepare_rafdb_for_lora.py
 ```
 
-Run fine-tuning
+You can check and play with the data in `data_exp.ipynb`
+
+## 3. Run fine-tuning
 
 ```bash
 export MODEL_NAME="CompVis/stable-diffusion-v1-4"
@@ -44,3 +46,7 @@ accelerate launch --mixed_precision="fp16" train_text_to_image_lora.py \
   --seed=1337 \
   --report_to=wandb
 ```
+
+## 4. Inference the model
+
+Got to `inference.ipynb`, load the base model and add fine-tuned parameters, generate pictures.

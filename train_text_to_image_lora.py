@@ -198,7 +198,7 @@ def parse_args():
     parser.add_argument(
         "--caption_column",
         type=str,
-        default="text",
+        default="prompt",
         help="The column of the dataset containing a caption or a list of captions.",
     )
     parser.add_argument(

@@ -25,7 +25,7 @@
                 "--max_grad_norm=0",
                 "--lr_scheduler=constant",
                 "--lr_warmup_steps=500",
-                "--output_dir=./output",
+                "--output_dir=Data/iuliia.korotkova/output/exp1",
                 "--validation_prompt=happiness",
                 "--validation_prompt=sadness",
                 "--validation_prompt=anger",
@@ -58,16 +58,72 @@
                 "--gradient_accumulation_steps=1",
                 "--max_train_steps=10",
                 "--learning_rate=1e-04",
-                "--output_dir=./output/debug",
+                "--output_dir=Data/iuliia.korotkova/output/debug",
                 "--validation_prompt=happiness",
                 "--num_validation_images=1",
                 "--checkpointing_steps=5",
-                "--seed=1337"
+                "--seed=1337",
             ],
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
                 "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "Train Text-to-Image LoRA with EmoSet (Quick Debug)",
+            "type": "python",
+            "request": "launch",
+            "module": "accelerate.commands.launch",
+            "args": [
+                "--mixed_precision=bf16",
+                "train_text_to_image_lora.py",
+                "--pretrained_model_name_or_path=CompVis/stable-diffusion-v1-4",
+                "--dataset_name=Woleek/EmoSet-118K",
+                "--cache_dir=/Data/iuliia.korotkova/cache",
+                "--dataloader_num_workers=2",
+                "--resolution=512",
+                "--center_crop",
+                "--train_batch_size=2",
+                "--gradient_accumulation_steps=1",
+                "--max_train_steps=10",
+                "--learning_rate=1e-04",
+                "--output_dir=/Data/iuliia.korotkova/output/debug_emoset_1",
+                "--validation_prompt='soldiers walking on the street'",
+                "--num_validation_images=1",
+                "--checkpointing_steps=5",
+                "--seed=1337",
+                "--caption_column=prompt",
+                "--emotion_condition"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "Image Caption Annotation (Quick Debug)",
+            "type": "python",
+            "request": "launch",
+            "program": "generate_captions.py",
+            "args": [
+                "--dataset_name=Woleek/EmoSet-118K",
+                "--model=blip2",
+                "--split=train",
+                "--output_dir=/Data/iuliia.korotkova/emoset_captions",
+                "--no_emotion",
+                "--max_samples=10",
+                // "--merge",
+                "--cache_dir=/Data/iuliia.korotkova/cache"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0",
+                "HF_HOME": "/Data/iuliia.korotkova/huggingface",
+                "TRANSFORMERS_CACHE": "/Data/iuliia.korotkova/huggingface/transformers",
+                "HF_DATASETS_CACHE": "/Data/iuliia.korotkova/huggingface/datasets",
             }
         },
     ]

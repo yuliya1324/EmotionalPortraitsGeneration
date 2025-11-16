@@ -23,6 +23,7 @@ import random
 import shutil
 from contextlib import nullcontext
 from pathlib import Path
+import json
 
 import datasets
 import numpy as np
@@ -102,11 +103,53 @@ These are LoRA adaption weights for {base_model}. The weights were fine-tuned on
     model_card.save(os.path.join(repo_folder, "README.md"))
 
 
+def generate_with_emotion(pipe, emotion_embedding, prompt, emotion_id, generator=None, num_inference_steps=50):
+    # Encode text prompt
+    text_inputs = pipe.tokenizer(
+        prompt,
+        padding="max_length",
+        max_length=pipe.tokenizer.model_max_length - 1,
+        truncation=True,
+        return_tensors="pt",
+    )
+    text_input_ids = text_inputs.input_ids.to("cuda")
+    
+    # Get text embeddings from text encoder
+    with torch.no_grad():
+        text_embeddings = pipe.text_encoder(text_input_ids)[0]  # [batch, seq_len, 768]
+        
+        # Get emotion embedding
+        emotion_id_tensor = torch.tensor([emotion_id]).to("cuda")
+        emotion_embed = emotion_embedding(emotion_id_tensor)  # [1, 768]
+        
+        # Concatenate emotion embedding to text embeddings
+        # Expand emotion to match sequence format
+        emotion_embed = emotion_embed.unsqueeze(1)  # [1, 1, 768]
+        combined_embeddings = torch.cat([text_embeddings, emotion_embed], dim=1)  # [1, seq_len+1, 768]
+    
+    # Generate with modified embeddings
+    # We need to bypass the text encoder and pass embeddings directly
+    if generator is not None:
+        image = pipe(
+            prompt_embeds=combined_embeddings,
+            num_inference_steps=num_inference_steps,
+            generator=generator,
+        ).images[0]
+    else:
+        image = pipe(
+            prompt_embeds=combined_embeddings,
+            num_inference_steps=num_inference_steps,
+        ).images[0]
+    
+    return image
+
+
 def log_validation(
     pipeline,
     args,
     accelerator,
     epoch,
+    emo_embed=None,
     is_final_validation=False,
 ):
     logger.info(
@@ -126,8 +169,11 @@ def log_validation(
 
     with autocast_ctx:
         for _ in range(args.num_validation_images):
-            images.append(pipeline(args.validation_prompt, num_inference_steps=30, generator=generator).images[0])
-
+            if args.emotion_condition:
+                images.append(generate_with_emotion(pipeline, emo_embed, args.validation_prompt, 0, num_inference_steps=30, generator=generator))
+            else:
+                images.append(pipeline(args.validation_prompt, num_inference_steps=30, generator=generator).images[0])
+            
     for tracker in accelerator.trackers:
         phase_name = "test" if is_final_validation else "validation"
         if tracker.name == "tensorboard":
@@ -427,6 +473,11 @@ def parse_args():
         ],
         help="The image interpolation method to use for resizing images.",
     )
+    parser.add_argument(
+        "--emotion_condition",
+        action="store_true",
+        help="whether to add embedding layer for emotions",
+    )
 
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
@@ -511,6 +562,8 @@ def main():
     unet = UNet2DConditionModel.from_pretrained(
         args.pretrained_model_name_or_path, subfolder="unet", revision=args.revision, variant=args.variant
     )
+    if args.emotion_condition:
+        emo_embed = torch.nn.Embedding(num_embeddings=8, embedding_dim=text_encoder.text_model.config.hidden_size)
     # freeze parameters of models to save more memory
     unet.requires_grad_(False)
     vae.requires_grad_(False)
@@ -535,7 +588,8 @@ def main():
     unet.to(accelerator.device, dtype=weight_dtype)
     vae.to(accelerator.device, dtype=weight_dtype)
     text_encoder.to(accelerator.device, dtype=weight_dtype)
-
+    if args.emotion_condition:
+        emo_embed.to(accelerator.device, dtype=weight_dtype)
     # Add adapter and make sure the trainable params are in float32.
     unet.add_adapter(unet_lora_config)
     if args.mixed_precision == "fp16":
@@ -618,6 +672,16 @@ def main():
 
     # Preprocessing the datasets.
     # We need to tokenize inputs and targets.
+    with open("/Data/iuliia.korotkova/emoset_captions/train_captions.json") as f:
+        captions = json.load(f)
+    
+    def add_captions(example, idx):
+        caption_data = captions[idx]
+        example["prompt"] = caption_data["caption"]
+        return example
+
+    dataset = dataset.map(add_captions, with_indices=True)
+
     column_names = dataset["train"].column_names
 
     # 6. Get the column names for input/target.
@@ -685,6 +749,7 @@ def main():
         images = [image.convert("RGB") for image in examples[image_column]]
         examples["pixel_values"] = [train_transforms(image) for image in images]
         examples["input_ids"] = tokenize_captions(examples)
+        examples["label"] = torch.tensor(examples["label"], dtype=examples["input_ids"].dtype).unsqueeze(1)
         return examples
 
     with accelerator.main_process_first():
@@ -697,7 +762,8 @@ def main():
         pixel_values = torch.stack([example["pixel_values"] for example in examples])
         pixel_values = pixel_values.to(memory_format=torch.contiguous_format).float()
         input_ids = torch.stack([example["input_ids"] for example in examples])
-        return {"pixel_values": pixel_values, "input_ids": input_ids}
+        emotion_ids = torch.stack([example["label"] for example in examples])
+        return {"pixel_values": pixel_values, "input_ids": input_ids, "emotion_ids": emotion_ids}
 
     # DataLoaders creation:
     train_dataloader = torch.utils.data.DataLoader(
@@ -826,6 +892,9 @@ def main():
 
                 # Get the text embedding for conditioning
                 encoder_hidden_states = text_encoder(batch["input_ids"], return_dict=False)[0]
+                if args.emotion_condition:
+                    emo_hidden_states = emo_embed(batch["emotion_ids"])
+                    encoder_hidden_states = torch.concat([encoder_hidden_states, emo_hidden_states], dim=1)
 
                 # Get the target for loss depending on the prediction type
                 if args.prediction_type is not None:
@@ -916,6 +985,8 @@ def main():
                             unet_lora_layers=unet_lora_state_dict,
                             safe_serialization=True,
                         )
+                        if args.emotion_condition:
+                            torch.save(emo_embed.state_dict(), os.path.join(save_path, 'emotion_embedding.pth'))
 
                         logger.info(f"Saved state to {save_path}")
 
@@ -935,7 +1006,10 @@ def main():
                     variant=args.variant,
                     torch_dtype=weight_dtype,
                 )
-                images = log_validation(pipeline, args, accelerator, epoch)
+                if args.emotion_condition:
+                    images = log_validation(pipeline, args, accelerator, epoch, emo_embed=emo_embed)
+                else:
+                    images = log_validation(pipeline, args, accelerator, epoch)
 
                 del pipeline
                 torch.cuda.empty_cache()
@@ -952,6 +1026,8 @@ def main():
             unet_lora_layers=unet_lora_state_dict,
             safe_serialization=True,
         )
+        if args.emotion_condition:
+            torch.save(emo_embed.state_dict(), os.path.join(args.output_dir, 'emotion_embedding.pth'))
 
         # Final inference
         # Load previous pipeline
@@ -967,7 +1043,10 @@ def main():
             pipeline.load_lora_weights(args.output_dir)
 
             # run inference
-            images = log_validation(pipeline, args, accelerator, epoch, is_final_validation=True)
+            if args.emotion_condition:
+                images = log_validation(pipeline, args, accelerator, epoch, emo_embed=emo_embed, is_final_validation=True)
+            else:
+                images = log_validation(pipeline, args, accelerator, epoch, is_final_validation=True)
 
         if args.push_to_hub:
             save_model_card(

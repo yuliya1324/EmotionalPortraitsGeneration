@@ -13,6 +13,12 @@ from PIL import Image
 import json
 import numpy as np
 
+# Set HuggingFace cache directory
+DATA_DIR = "/Data/yash.bhardwaj"
+os.environ["HF_HOME"] = os.path.join(DATA_DIR, "cache", "huggingface")
+os.environ["HF_DATASETS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "datasets")
+os.environ["TRANSFORMERS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "transformers")
+
 
 # Emotion tokens
 EMOTION_TOKENS = [
@@ -43,9 +49,9 @@ def setup_device():
 
 def load_model_and_adapters(
     model_id: str = "runwayml/stable-diffusion-v1-5",
-    lora_path: str = "output/final_model",
-    learned_embeds_path: str = "output/final_model/learned_embeds.bin",
-    tokenizer_info_path: str = "output/final_model/tokenizer_info.json"
+    lora_path: str = None,
+    learned_embeds_path: str = None,
+    tokenizer_info_path: str = None
 ):
     """
     Load Stable Diffusion model with LoRA adapters and learned embeddings.
@@ -61,13 +67,32 @@ def load_model_and_adapters(
     """
     device = setup_device()
     
+    # Set default paths if not provided
+    if lora_path is None:
+        lora_path = os.path.join(DATA_DIR, "outputs", "final_model")
+    if learned_embeds_path is None:
+        learned_embeds_path = os.path.join(DATA_DIR, "outputs", "final_model", "learned_embeds.bin")
+    if tokenizer_info_path is None:
+        tokenizer_info_path = os.path.join(DATA_DIR, "outputs", "final_model", "tokenizer_info.json")
+    
     print(f"\nLoading base model: {model_id}")
-    pipe = StableDiffusionPipeline.from_pretrained(
-        model_id,
-        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-        safety_checker=None,
-        requires_safety_checker=False
-    )
+    try:
+        pipe = StableDiffusionPipeline.from_pretrained(
+            model_id,
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+            safety_checker=None,
+            requires_safety_checker=False,
+            local_files_only=True
+        )
+    except Exception as e:
+        print(f"Warning: Could not load with local_files_only: {e}")
+        print("Attempting to load without local_files_only...")
+        pipe = StableDiffusionPipeline.from_pretrained(
+            model_id,
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+            safety_checker=None,
+            requires_safety_checker=False
+        )
     
     # Load tokenizer info
     if os.path.exists(tokenizer_info_path):
@@ -305,25 +330,25 @@ def main():
     parser.add_argument(
         "--lora_path",
         type=str,
-        default="output/final_model",
+        default=os.path.join(DATA_DIR, "outputs", "final_model"),
         help="Path to LoRA checkpoint directory"
     )
     parser.add_argument(
         "--learned_embeds_path",
         type=str,
-        default="output/final_model/learned_embeds.bin",
+        default=os.path.join(DATA_DIR, "outputs", "final_model", "learned_embeds.bin"),
         help="Path to learned embeddings file"
     )
     parser.add_argument(
         "--tokenizer_info_path",
         type=str,
-        default="output/final_model/tokenizer_info.json",
+        default=os.path.join(DATA_DIR, "outputs", "final_model", "tokenizer_info.json"),
         help="Path to tokenizer info JSON file"
     )
     parser.add_argument(
         "--output_path",
         type=str,
-        default="emotion_comparison.png",
+        default=os.path.join(DATA_DIR, "outputs", "emotion_comparison.png"),
         help="Output path for grid image"
     )
     parser.add_argument(

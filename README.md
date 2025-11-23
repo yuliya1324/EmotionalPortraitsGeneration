@@ -63,13 +63,13 @@ Since EmoSet-118K lacks captions, we generate them using BLIP on a subset of 10,
 ### Run Preprocessing
 
 ```bash
-python src/preprocess.py
+python src/preprocessing.py
 ```
 
 ### Preprocessing Options
 
 ```bash
-python src/preprocess.py \
+python src/preprocessing.py \
     --dataset_name Woleek/EmoSet-118K \
     --split train \
     --subset_size 10000 \
@@ -246,12 +246,12 @@ The inference script generates a grid image showing the same scene with all 8 em
 EmotionalPortraitsGeneration/
 ├── src/
 │   ├── __init__.py          # Package initialization
-│   ├── preprocess.py        # BLIP caption generation
+│   ├── preprocessing.py     # BLIP caption generation
 │   ├── dataset.py           # Local dataset loading
 │   ├── train.py             # Training script
 │   └── inference.py         # Inference and visualization
 ├── data/
-│   └── emoset_captioned_10k/  # Processed dataset (created by preprocess.py)
+│   └── emoset_captioned_10k/  # Processed dataset (created by preprocessing.py)
 ├── output/
 │   ├── final_model/         # Training outputs (created during training)
 │   │   ├── learned_embeds.bin

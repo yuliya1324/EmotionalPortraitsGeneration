@@ -1,15 +1,22 @@
 """
 Preprocessing script to generate captions for EmoSet-118K using BLIP.
+Downloads full dataset first, then samples a subset and generates captions.
 """
 
 import os
 import argparse
 import torch
-from datasets import load_dataset
+from datasets import load_dataset, Dataset, load_from_disk
 from transformers import BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
 from tqdm import tqdm
 import random
+
+# Set HuggingFace cache directory
+DATA_DIR = "/Data/yash.bhardwaj"
+os.environ["HF_HOME"] = os.path.join(DATA_DIR, "cache", "huggingface")
+os.environ["HF_DATASETS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "datasets")
+os.environ["TRANSFORMERS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "transformers")
 
 
 def setup_device():
@@ -86,7 +93,7 @@ def generate_captions_batch(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate captions for EmoSet-118K using BLIP"
+        description="Generate captions for EmoSet-118K using BLIP. Downloads full dataset first, then samples subset."
     )
     parser.add_argument(
         "--dataset_name",
@@ -104,13 +111,19 @@ def main():
         "--subset_size",
         type=int,
         default=10000,
-        help="Number of images to process"
+        help="Number of images to sample and process"
+    )
+    parser.add_argument(
+        "--full_dataset_dir",
+        type=str,
+        default=os.path.join(DATA_DIR, "datasets", "emoset_full"),
+        help="Directory to save/load full dataset"
     )
     parser.add_argument(
         "--output_dir",
         type=str,
-        default="./data/emoset_captioned_10k",
-        help="Output directory for processed dataset"
+        default=os.path.join(DATA_DIR, "datasets", "emoset_captioned_10k"),
+        help="Output directory for processed subset dataset"
     )
     parser.add_argument(
         "--batch_size",
@@ -130,6 +143,11 @@ def main():
         default="Salesforce/blip-image-captioning-base",
         help="BLIP model name"
     )
+    parser.add_argument(
+        "--skip_download",
+        action="store_true",
+        help="Force re-download even if full dataset exists (default: auto-load if exists)"
+    )
     
     args = parser.parse_args()
     
@@ -142,24 +160,64 @@ def main():
     # Setup device
     device = setup_device()
     
-    # Load dataset
+    # Step 1: Download full dataset (or load if exists)
     print("\n" + "="*50)
-    print("Loading EmoSet-118K dataset...")
+    print("Step 1: Loading full EmoSet-118K dataset...")
     print("="*50)
-    dataset = load_dataset(args.dataset_name, split=args.split)
-    print(f"Loaded {len(dataset)} examples")
     
-    # Shuffle and select subset
-    print(f"\nShuffling and selecting {args.subset_size} examples...")
-    indices = list(range(len(dataset)))
+    full_dataset_path = args.full_dataset_dir
+    
+    # Check if full dataset already exists on disk
+    if os.path.exists(full_dataset_path) and not args.skip_download:
+        print(f"Full dataset found at {full_dataset_path}, loading from disk...")
+        try:
+            full_dataset = load_from_disk(full_dataset_path)
+            print(f"Loaded {len(full_dataset)} examples from disk")
+        except Exception as e:
+            print(f"Failed to load from disk: {e}")
+            print("Downloading full dataset...")
+            full_dataset = load_dataset(args.dataset_name, split=args.split)
+            print(f"Downloaded {len(full_dataset)} examples")
+            os.makedirs(full_dataset_path, exist_ok=True)
+            full_dataset.save_to_disk(full_dataset_path)
+            print(f"Saved full dataset to {full_dataset_path}")
+    else:
+        if args.skip_download:
+            print("--skip_download flag set, but dataset not found. Downloading anyway...")
+        print(f"Downloading full dataset (this may take a while)...")
+        full_dataset = load_dataset(args.dataset_name, split=args.split)
+        print(f"Downloaded {len(full_dataset)} examples")
+        os.makedirs(full_dataset_path, exist_ok=True)
+        full_dataset.save_to_disk(full_dataset_path)
+        print(f"Saved full dataset to {full_dataset_path}")
+    
+    # Step 2: Sample subset from full dataset
+    print("\n" + "="*50)
+    print(f"Step 2: Sampling {args.subset_size} images from {len(full_dataset)} total images...")
+    print("="*50)
+    
+    # Shuffle indices and select subset
+    indices = list(range(len(full_dataset)))
     random.shuffle(indices)
     selected_indices = indices[:args.subset_size]
-    subset = dataset.select(selected_indices)
+    
+    # Create subset dataset
+    subset = full_dataset.select(selected_indices)
     print(f"Selected {len(subset)} examples")
     
-    # Load BLIP model
+    # Print emotion distribution in subset
+    if len(subset) > 0:
+        emotion_counts = {}
+        for example in subset:
+            emotion = example.get('emotion', 'amusement')
+            emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+        print("\nEmotion distribution in subset:")
+        for emotion, count in sorted(emotion_counts.items()):
+            print(f"  {emotion}: {count} examples")
+    
+    # Step 3: Load BLIP model
     print("\n" + "="*50)
-    print(f"Loading BLIP model: {args.model_name}")
+    print(f"Step 3: Loading BLIP model: {args.model_name}")
     print("="*50)
     processor = BlipProcessor.from_pretrained(args.model_name)
     model = BlipForConditionalGeneration.from_pretrained(args.model_name)
@@ -167,9 +225,9 @@ def main():
     model.eval()
     print("BLIP model loaded successfully")
     
-    # Generate captions
+    # Step 4: Generate captions
     print("\n" + "="*50)
-    print("Generating captions...")
+    print("Step 4: Generating captions...")
     print("="*50)
     
     generated_captions = []
@@ -212,9 +270,9 @@ def main():
         print(f"  Emotion: {sample.get('emotion', 'N/A')}")
         print(f"  Generated Caption: {sample['generated_caption']}")
     
-    # Save dataset
+    # Step 5: Save final dataset
     print("\n" + "="*50)
-    print(f"Saving dataset to {args.output_dir}...")
+    print(f"Step 5: Saving final dataset to {args.output_dir}...")
     print("="*50)
     os.makedirs(args.output_dir, exist_ok=True)
     subset.save_to_disk(args.output_dir)

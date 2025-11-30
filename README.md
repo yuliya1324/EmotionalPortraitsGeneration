@@ -46,6 +46,30 @@ python -c "import diffusers; print(f'Diffusers: {diffusers.__version__}')"
 python -c "from transformers import BlipProcessor; print('BLIP available')"
 ```
 
+## Quick Start
+
+**👉 See [QUICKSTART.md](QUICKSTART.md) for a complete step-by-step guide from preprocessing to running an approach.**
+
+### Quick Example
+
+```bash
+# 1. Preprocess dataset
+python shared/src/preprocessing.py \
+    --subset_size 30000 \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k
+
+# 2. Train model
+python run_experiment.py train \
+    --approach baseline_lora \
+    --dataset-size 30K
+
+# 3. Generate images
+python run_experiment.py inference \
+    --approach baseline_lora \
+    --dataset-size 30K \
+    --prompt "A living room"
+```
+
 ## Workflow
 
 The project follows a three-step workflow:
@@ -58,22 +82,26 @@ The project follows a three-step workflow:
 
 ## Step 1: Preprocessing
 
-Since EmoSet-118K lacks captions, we generate them using BLIP on a subset of 10,000 images.
+Since EmoSet-118K lacks captions, we generate them using BLIP on a subset of images.
 
 ### Run Preprocessing
 
 ```bash
-python src/preprocessing.py
+python shared/src/preprocessing.py \
+    --subset_size 30000 \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k \
+    --batch_size 8 \
+    --seed 42
 ```
 
 ### Preprocessing Options
 
 ```bash
-python src/preprocessing.py \
+python shared/src/preprocessing.py \
     --dataset_name Woleek/EmoSet-118K \
     --split train \
-    --subset_size 10000 \
-    --output_dir ./data/emoset_captioned_10k \
+    --subset_size 30000 \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42 \
     --model_name Salesforce/blip-image-captioning-base
@@ -103,33 +131,37 @@ The preprocessing script will:
 
 ## Step 2: Training
 
-Train the model with LoRA adapters and learned token embeddings.
+Train a specific approach using the experiment runner.
+
+### List Available Approaches
+
+```bash
+python run_experiment.py list-approaches
+```
 
 ### Basic Training
 
 ```bash
-accelerate launch src/train.py
+python run_experiment.py train \
+    --approach baseline_lora \
+    --dataset-size 30K
 ```
 
 ### Advanced Training Options
 
 ```bash
-accelerate launch src/train.py \
-    --data_dir ./data/emoset_captioned_10k \
-    --output_dir output/final_model \
-    --log_dir output/logs \
-    --batch_size 4 \
-    --num_epochs 10 \
-    --lr_lora 1e-4 \
-    --lr_embeddings 1e-3 \
-    --lora_r 16 \
-    --lora_alpha 32 \
-    --save_steps 500 \
-    --validation_steps 500 \
-    --seed 42 \
-    --init_word style \
-    --test_prompt_1 "A living room <fear>" \
-    --test_prompt_2 "A living room <excitement>"
+python run_experiment.py train \
+    --approach baseline_lora \
+    --dataset-size 30K \
+    --batch-size 8 \
+    --num-epochs 7 \
+    --lr-lora 1e-4 \
+    --lr-embeddings 1e-3 \
+    --lora-r 32 \
+    --lora-alpha 64 \
+    --save-steps 1000 \
+    --validation-steps 1000 \
+    --seed 42
 ```
 
 ### Training Arguments
@@ -186,22 +218,22 @@ Generate emotion-conditioned images using the trained model.
 ### Basic Inference
 
 ```bash
-python src/inference.py --prompt "A photo of a park"
+python run_experiment.py inference \
+    --approach baseline_lora \
+    --dataset-size 30K \
+    --prompt "A photo of a park"
 ```
 
 ### Advanced Inference Options
 
 ```bash
-python src/inference.py \
+python run_experiment.py inference \
+    --approach baseline_lora \
+    --dataset-size 30K \
     --prompt "A photo of a park" \
-    --lora_path output/final_model \
-    --learned_embeds_path output/final_model/learned_embeds.bin \
-    --tokenizer_info_path output/final_model/tokenizer_info.json \
-    --output_path emotion_comparison.png \
     --seed 42 \
-    --num_inference_steps 50 \
-    --guidance_scale 7.5 \
-    --grid_cols 4
+    --num-inference-steps 50 \
+    --guidance-scale 7.5
 ```
 
 ### Inference Arguments
@@ -244,24 +276,41 @@ The inference script generates a grid image showing the same scene with all 8 em
 
 ```
 EmotionalPortraitsGeneration/
-├── src/
-│   ├── __init__.py          # Package initialization
-│   ├── preprocessing.py     # BLIP caption generation
-│   ├── dataset.py           # Local dataset loading
-│   ├── train.py             # Training script
-│   └── inference.py         # Inference and visualization
-├── data/
-│   └── emoset_captioned_10k/  # Processed dataset (created by preprocessing.py)
-├── output/
-│   ├── final_model/         # Training outputs (created during training)
-│   │   ├── learned_embeds.bin
-│   │   ├── tokenizer_info.json
-│   │   └── adapter_model.safetensors  # LoRA weights
-│   └── logs/                # Validation images (created during training)
-│       └── step_*.png
+├── approaches/              # Different approaches
+│   ├── baseline_lora/       # Baseline: LoRA + learned embeddings
+│   │   └── src/
+│   │       ├── train.py     # Training script
+│   │       └── inference.py # Inference script
+│   └── README.md            # Guide for adding approaches
+├── shared/                  # Shared utilities
+│   └── src/
+│       ├── dataset.py       # Dataset loading
+│       └── preprocessing.py # BLIP caption generation
+├── run_experiment.py        # Main experiment runner
+├── QUICKSTART.md            # Complete step-by-step guide
+├── EXPERIMENT_STRUCTURE.md  # Detailed structure docs
 ├── requirements.txt         # Python dependencies
-├── README.md               # This file
-└── .gitignore              # Git ignore rules
+└── README.md               # This file
+```
+
+## Storage Structure
+
+All outputs stored in `/Data/yash.bhardwaj/EmotionalPortraitGeneration/`:
+
+```
+/Data/yash.bhardwaj/EmotionalPortraitGeneration/
+├── Weights/                 # Model weights
+│   ├── 10K/baseline_lora/
+│   ├── 30K/baseline_lora/
+│   └── ...
+├── Logs/                    # Training logs
+│   ├── 10K/baseline_lora/
+│   ├── 30K/baseline_lora/
+│   └── ...
+└── Datasets/                # Processed datasets
+    ├── emoset_captioned_10k/
+    ├── emoset_captioned_30k/
+    └── ...
 ```
 
 ## Emotion Tokens

@@ -192,7 +192,8 @@ def visualize_scene(
     prompts = []
     
     for i, emotion_token in enumerate(emotion_tokens):
-        full_prompt = f"{prompt} {emotion_token}"
+        # Emotion first for stronger conditioning (matches training format)
+        full_prompt = f"{emotion_token} {prompt}"
         prompts.append(full_prompt)
         
         print(f"\n[{i+1}/{len(emotion_tokens)}] Generating: {full_prompt}")
@@ -330,25 +331,25 @@ def main():
     parser.add_argument(
         "--lora_path",
         type=str,
-        default=os.path.join(DATA_DIR, "outputs", "final_model"),
+        default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Weights", "10K", "baseline_lora"),
         help="Path to LoRA checkpoint directory"
     )
     parser.add_argument(
         "--learned_embeds_path",
         type=str,
-        default=os.path.join(DATA_DIR, "outputs", "final_model", "learned_embeds.bin"),
+        default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Weights", "10K", "baseline_lora", "learned_embeds.bin"),
         help="Path to learned embeddings file"
     )
     parser.add_argument(
         "--tokenizer_info_path",
         type=str,
-        default=os.path.join(DATA_DIR, "outputs", "final_model", "tokenizer_info.json"),
+        default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Weights", "10K", "baseline_lora", "tokenizer_info.json"),
         help="Path to tokenizer info JSON file"
     )
     parser.add_argument(
         "--output_path",
         type=str,
-        default=os.path.join(DATA_DIR, "outputs", "emotion_comparison.png"),
+        default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Logs", "10K", "baseline_lora", "emotion_comparison.png"),
         help="Output path for grid image"
     )
     parser.add_argument(

@@ -19,6 +19,14 @@ import json
 import numpy as np
 from PIL import Image
 
+import sys
+from pathlib import Path
+
+# Add shared directory to path
+REPO_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
+SHARED_DIR = REPO_ROOT / "shared" / "src"
+sys.path.insert(0, str(SHARED_DIR))
+
 from dataset import EmoSetLocalDataset
 
 # Set HuggingFace cache directory
@@ -445,12 +453,12 @@ def load_checkpoint(
 
 def main():
     parser = argparse.ArgumentParser(description="Train emotion-conditioned Stable Diffusion")
-    parser.add_argument("--data_dir", type=str, default=os.path.join(DATA_DIR, "datasets", "emoset_captioned_10k"),
+    parser.add_argument("--data_dir", type=str, default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Datasets", "emoset_captioned_10k"),
                        help="Path to local dataset directory")
-    parser.add_argument("--output_dir", type=str, default=os.path.join(DATA_DIR, "outputs", "final_model"),
-                       help="Output directory for checkpoints (default: /Data/yash.bhardwaj/outputs/final_model)")
-    parser.add_argument("--log_dir", type=str, default=os.path.join(DATA_DIR, "outputs", "logs"),
-                       help="Directory for validation images and logs (default: /Data/yash.bhardwaj/outputs/logs)")
+    parser.add_argument("--output_dir", type=str, default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Weights", "10K", "baseline_lora"),
+                       help="Output directory for checkpoints")
+    parser.add_argument("--log_dir", type=str, default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Logs", "10K", "baseline_lora"),
+                       help="Directory for validation images and logs")
     parser.add_argument("--batch_size", type=int, default=4,
                        help="Training batch size")
     parser.add_argument("--num_epochs", type=int, default=10,

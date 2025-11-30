@@ -59,7 +59,7 @@ def generate_captions_batch(
     """
     captions = []
     
-    for i in range(0, len(images), batch_size):
+    for i in tqdm(range(0, len(images), batch_size), desc="  Generating captions", leave=False):
         batch_images = images[i:i + batch_size]
         
         # Process images
@@ -122,14 +122,20 @@ def main():
     parser.add_argument(
         "--output_dir",
         type=str,
-        default=os.path.join(DATA_DIR, "datasets", "emoset_captioned_10k"),
+        default=os.path.join("/Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets", "emoset_captioned_10k"),
         help="Output directory for processed subset dataset"
     )
     parser.add_argument(
         "--batch_size",
         type=int,
         default=8,
-        help="Batch size for caption generation"
+        help="Batch size for caption generation (images processed per GPU batch)"
+    )
+    parser.add_argument(
+        "--chunk_size",
+        type=int,
+        default=None,
+        help="Number of images to process in each chunk (default: batch_size * 10). Lower if memory issues occur."
     )
     parser.add_argument(
         "--seed",
@@ -229,31 +235,63 @@ def main():
     print("\n" + "="*50)
     print("Step 4: Generating captions...")
     print("="*50)
+    print(f"Processing {len(subset)} images in chunks to avoid memory issues...")
     
     generated_captions = []
-    images_list = []
     
-    # Collect all images first
-    print("Loading images...")
-    for example in tqdm(subset, desc="Loading images"):
-        image = example['image']
-        if not isinstance(image, Image.Image):
-            image = Image.open(image).convert('RGB')
-        images_list.append(image)
+    # Process images in chunks to avoid loading all into memory
+    # Process in chunks of chunk_size images at a time
+    if args.chunk_size is None:
+        chunk_size = args.batch_size * 10  # Process 10 batches worth at a time
+    else:
+        chunk_size = args.chunk_size
+    total_chunks = (len(subset) + chunk_size - 1) // chunk_size
     
-    # Generate captions in batches
-    print("\nGenerating captions with BLIP...")
-    captions = generate_captions_batch(
-        processor,
-        model,
-        images_list,
-        device,
-        batch_size=args.batch_size
-    )
+    print(f"Processing in {total_chunks} chunks of ~{chunk_size} images each")
+    print(f"Using batch size: {args.batch_size} for BLIP caption generation\n")
+    
+    for chunk_idx in range(total_chunks):
+        start_idx = chunk_idx * chunk_size
+        end_idx = min(start_idx + chunk_size, len(subset))
+        chunk_subset = subset.select(range(start_idx, end_idx))
+        
+        print(f"Processing chunk {chunk_idx + 1}/{total_chunks} (images {start_idx}-{end_idx-1})...")
+        
+        # Load images for this chunk only
+        images_list = []
+        for example in tqdm(chunk_subset, desc=f"  Loading images", leave=False):
+            image = example['image']
+            if not isinstance(image, Image.Image):
+                if isinstance(image, str):
+                    image = Image.open(image).convert('RGB')
+                else:
+                    # Try to convert if it's already an array
+                    image = Image.fromarray(image).convert('RGB')
+            images_list.append(image)
+        
+        # Generate captions for this chunk
+        chunk_captions = generate_captions_batch(
+            processor,
+            model,
+            images_list,
+            device,
+            batch_size=args.batch_size
+        )
+        
+        generated_captions.extend(chunk_captions)
+        num_processed = len(chunk_captions)
+        
+        # Clear memory
+        del images_list
+        del chunk_captions
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        
+        print(f"  ✓ Processed {num_processed} images in chunk {chunk_idx + 1}")
     
     # Add captions to dataset
-    print("\nAdding captions to dataset...")
-    subset = subset.add_column("generated_caption", captions)
+    print(f"\nAdding {len(generated_captions)} captions to dataset...")
+    subset = subset.add_column("generated_caption", generated_captions)
     
     # Validate
     print("\n" + "="*50)

@@ -109,10 +109,14 @@ class EmoSetLocalDataset(Dataset):
         # Get caption (prefer 'generated_caption', fallback to 'caption')
         caption = example.get('generated_caption') or example.get('caption', '')
         
-        # Construct prompt: caption + emotion token
+        # Construct prompt: emotion token FIRST for stronger conditioning
+        # Cross-attention gives more weight to early tokens
         emotion_token = self.emotion_to_token.get(emotion, f'<{emotion}>')
         if caption:
-            prompt = f"{caption} {emotion_token}"
+            # Option 1: Emotion first (strongest)
+            prompt = f"{emotion_token} {caption}"
+            # Option 2: Emotion both start and end (reinforcement)
+            # prompt = f"{emotion_token} {caption} {emotion_token}"
         else:
             prompt = emotion_token
         

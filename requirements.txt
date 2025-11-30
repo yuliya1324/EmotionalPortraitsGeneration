@@ -14,4 +14,5 @@ opencv-python
 kagglehub
 wandb
 peft
+git+https://github.com/openai/CLIP.git
 # xformers

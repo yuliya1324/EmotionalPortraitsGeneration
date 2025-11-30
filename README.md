@@ -82,3 +82,8 @@ accelerate launch --mixed_precision="bf16" train_text_to_image_lora.py \
 ## 4. Inference the model
 
 Got to `inference.ipynb`, load the base model and add fine-tuned parameters, generate pictures.
+
+
+export HF_HOME="/Data/iuliia.korotkova/huggingface"
+export TRANSFORMERS_CACHE="/Data/iuliia.korotkova/huggingface/transformers"
+export HF_DATASETS_CACHE="/Data/iuliia.korotkova/huggingface/datasets"

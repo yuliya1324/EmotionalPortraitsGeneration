@@ -11,7 +11,7 @@ import subprocess
 from pathlib import Path
 
 # Base storage paths
-STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitGeneration"
+STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
 WEIGHTS_BASE = os.path.join(STORAGE_BASE, "Weights")
 LOGS_BASE = os.path.join(STORAGE_BASE, "Logs")
 DATASETS_BASE = os.path.join(STORAGE_BASE, "Datasets")
@@ -234,6 +234,9 @@ Examples:
   # Run inference
   python run_experiment.py inference --approach baseline_lora --dataset-size 30K \\
       --prompt "A living room"
+  
+  # Evaluate model
+  python run_experiment.py evaluate --approach baseline_lora --dataset-size 30K
         """
     )
     
@@ -246,21 +249,26 @@ Examples:
     train_parser = subparsers.add_parser('train', help='Train a model')
     train_parser.add_argument('--approach', type=str, required=True,
                              help='Approach name (e.g., baseline_lora)')
-    train_parser.add_argument('--dataset-size', type=str, required=True,
-                             help='Dataset size (e.g., 10K, 30K, 25K)')
+    train_parser.add_argument('--dataset-size', type=str, default='25K',
+                             help='Dataset size (e.g., 10K, 30K, 25K). Default: 25K')
     
     # Training arguments (pass through to train.py)
     train_parser.add_argument('--batch-size', type=int, default=4)
     train_parser.add_argument('--num-epochs', type=int, default=10)
     train_parser.add_argument('--lr-lora', type=float, default=1e-4)
-    train_parser.add_argument('--lr-embeddings', type=float, default=1e-3)
+    train_parser.add_argument('--lr-embeddings', type=float, default=5e-3)
     train_parser.add_argument('--lora-r', type=int, default=16)
     train_parser.add_argument('--lora-alpha', type=int, default=32)
     train_parser.add_argument('--save-steps', type=int, default=500)
-    train_parser.add_argument('--validation-steps', type=int, default=500)
-    train_parser.add_argument('--gradient-accumulation-steps', type=int, default=4)
+    train_parser.add_argument('--validation-steps', type=int, default=1000)
+    train_parser.add_argument('--gradient-accumulation-steps', type=int, default=3)
     train_parser.add_argument('--seed', type=int, default=42)
-    train_parser.add_argument('--init-word', type=str, default='style')
+    train_parser.add_argument('--init-word', type=str, default=None,
+                             help='Fallback word for token initialization (default: use emotion words)')
+    train_parser.add_argument('--emotion-reg-weight', type=float, default=0.05,
+                             help='Weight for emotion regularization loss (default: 0.05)')
+    train_parser.add_argument('--early-stopping-patience', type=int, default=5,
+                             help='Early stopping patience in epochs (default: 5)')
     train_parser.add_argument('--resume-from', type=str, default=None)
     
     # Inference command
@@ -274,6 +282,18 @@ Examples:
     inference_parser.add_argument('--seed', type=int, default=42)
     inference_parser.add_argument('--num-inference-steps', type=int, default=50)
     inference_parser.add_argument('--guidance-scale', type=float, default=7.5)
+    
+    # Evaluate command
+    evaluate_parser = subparsers.add_parser('evaluate', help='Evaluate model with CLIP')
+    evaluate_parser.add_argument('--approach', type=str, required=True,
+                                help='Approach name')
+    evaluate_parser.add_argument('--dataset-size', type=str, required=True,
+                                help='Dataset size')
+    evaluate_parser.add_argument('--skip-generation', action='store_true',
+                                help='Skip image generation, use existing images')
+    evaluate_parser.add_argument('--seed', type=int, default=42)
+    evaluate_parser.add_argument('--num-inference-steps', type=int, default=50)
+    evaluate_parser.add_argument('--guidance-scale', type=float, default=7.5)
     
     args = parser.parse_args()
     
@@ -301,6 +321,8 @@ Examples:
             'gradient_accumulation_steps': args.gradient_accumulation_steps,
             'seed': args.seed,
             'init_word': args.init_word,
+            'emotion_reg_weight': args.emotion_reg_weight,
+            'early_stopping_patience': args.early_stopping_patience,
         }
         if args.resume_from:
             train_kwargs['resume_from'] = args.resume_from
@@ -314,6 +336,30 @@ Examples:
             'guidance_scale': args.guidance_scale,
         }
         return run_inference(args.approach, args.dataset_size, args.prompt, **inference_kwargs)
+    
+    elif args.command == 'evaluate':
+        # Run evaluation script
+        evaluate_script = REPO_ROOT / "evaluate.py"
+        cmd = [
+            "python", str(evaluate_script),
+            "--approach", args.approach,
+            "--dataset-size", args.dataset_size,
+            "--seed", str(args.seed),
+            "--num-inference-steps", str(args.num_inference_steps),
+            "--guidance-scale", str(args.guidance_scale),
+        ]
+        if args.skip_generation:
+            cmd.append("--skip-generation")
+        
+        print("="*70)
+        print(f"Running Evaluation")
+        print("="*70)
+        print(f"Approach: {args.approach}")
+        print(f"Dataset Size: {args.dataset_size}")
+        print("="*70)
+        
+        result = subprocess.run(cmd, cwd=REPO_ROOT)
+        return result.returncode
     
     else:
         parser.print_help()

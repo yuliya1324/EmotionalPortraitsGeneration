@@ -65,3 +65,9 @@ huggingface/
 # Accelerate
 accelerate_logs/
 
+
+# Experiment tracking
+wandb/
+# Generated images
+validation_images/
+test_images/

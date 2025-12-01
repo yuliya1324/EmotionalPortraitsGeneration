@@ -56,7 +56,7 @@ python -c "from transformers import BlipProcessor; print('BLIP available')"
 # 1. Preprocess dataset
 python shared/src/preprocessing.py \
     --subset_size 30000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k
 
 # 2. Train model
 python run_experiment.py train \
@@ -89,7 +89,7 @@ Since EmoSet-118K lacks captions, we generate them using BLIP on a subset of ima
 ```bash
 python shared/src/preprocessing.py \
     --subset_size 30000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42
 ```
@@ -101,7 +101,7 @@ python shared/src/preprocessing.py \
     --dataset_name Woleek/EmoSet-118K \
     --split train \
     --subset_size 30000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42 \
     --model_name Salesforce/blip-image-captioning-base
@@ -295,10 +295,10 @@ EmotionalPortraitsGeneration/
 
 ## Storage Structure
 
-All outputs stored in `/Data/yash.bhardwaj/EmotionalPortraitGeneration/`:
+All outputs stored in `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/`:
 
 ```
-/Data/yash.bhardwaj/EmotionalPortraitGeneration/
+/Data/yash.bhardwaj/EmotionalPortraitsGeneration/
 ├── Weights/                 # Model weights
 │   ├── 10K/baseline_lora/
 │   ├── 30K/baseline_lora/

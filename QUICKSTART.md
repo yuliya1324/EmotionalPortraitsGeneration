@@ -21,7 +21,7 @@ Generate captions for a dataset variant using BLIP.
 ```bash
 python shared/src/preprocessing.py \
     --subset_size 30000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42
 ```
@@ -34,7 +34,7 @@ python shared/src/preprocessing.py \
     --split train \
     --subset_size 30000 \
     --full_dataset_dir /Data/yash.bhardwaj/datasets/emoset_full \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42 \
     --model_name Salesforce/blip-image-captioning-base
@@ -128,13 +128,13 @@ python run_experiment.py train \
 
 ### What Gets Saved
 
-- **Weights**: `/Data/yash.bhardwaj/EmotionalPortraitGeneration/Weights/30K/baseline_lora/`
+- **Weights**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora/`
   - `adapter_model.safetensors` - LoRA weights
   - `adapter_config.json` - LoRA configuration
   - `learned_embeds.bin` - Learned emotion token embeddings
   - `tokenizer_info.json` - Tokenizer information
 
-- **Logs**: `/Data/yash.bhardwaj/EmotionalPortraitGeneration/Logs/30K/baseline_lora/`
+- **Logs**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Logs/30K/baseline_lora/`
   - Validation images (every `validation_steps`)
   - Training logs
   - Loss history
@@ -197,7 +197,7 @@ The model generates images for these 8 emotions:
 # 1. Preprocess dataset (one-time, takes ~2-4 hours)
 python shared/src/preprocessing.py \
     --subset_size 30000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42
 
@@ -223,7 +223,7 @@ python run_experiment.py inference \
 # 1. Preprocess
 python shared/src/preprocessing.py \
     --subset_size 10000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_10k
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_10k
 
 # 2. Train
 python run_experiment.py train \
@@ -249,9 +249,9 @@ You can also run scripts directly without `run_experiment.py`:
 
 ```bash
 accelerate launch approaches/baseline_lora/src/train.py \
-    --data_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Weights/30K/baseline_lora \
-    --log_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Logs/30K/baseline_lora \
+    --data_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
+    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora \
+    --log_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Logs/30K/baseline_lora \
     --batch_size 8 \
     --num_epochs 7
 ```
@@ -261,9 +261,9 @@ accelerate launch approaches/baseline_lora/src/train.py \
 ```bash
 python approaches/baseline_lora/src/inference.py \
     --prompt "A living room" \
-    --lora_path /Data/yash.bhardwaj/EmotionalPortraitGeneration/Weights/30K/baseline_lora \
-    --learned_embeds_path /Data/yash.bhardwaj/EmotionalPortraitGeneration/Weights/30K/baseline_lora/learned_embeds.bin \
-    --tokenizer_info_path /Data/yash.bhardwaj/EmotionalPortraitGeneration/Weights/30K/baseline_lora/tokenizer_info.json
+    --lora_path /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora \
+    --learned_embeds_path /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora/learned_embeds.bin \
+    --tokenizer_info_path /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora/tokenizer_info.json
 ```
 
 ---
@@ -275,10 +275,10 @@ python approaches/baseline_lora/src/inference.py \
 If you get `FileNotFoundError` for dataset:
 ```bash
 # Check if dataset exists
-ls /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/
+ls /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/
 
 # If not, run preprocessing first
-python shared/src/preprocessing.py --subset_size 30000 --output_dir /Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/emoset_captioned_30k
+python shared/src/preprocessing.py --subset_size 30000 --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k
 ```
 
 ### Out of Memory
@@ -305,7 +305,7 @@ If training was interrupted:
 python run_experiment.py train \
     --approach baseline_lora \
     --dataset-size 30K \
-    --resume-from /Data/yash.bhardwaj/EmotionalPortraitGeneration/Weights/30K/baseline_lora
+    --resume-from /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora
 ```
 
 ---
@@ -313,9 +313,9 @@ python run_experiment.py train \
 ## Storage Locations
 
 All outputs are organized in:
-- **Datasets**: `/Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets/`
-- **Weights**: `/Data/yash.bhardwaj/EmotionalPortraitGeneration/Weights/{DatasetSize}/{Approach}/`
-- **Logs**: `/Data/yash.bhardwaj/EmotionalPortraitGeneration/Logs/{DatasetSize}/{Approach}/`
+- **Datasets**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/`
+- **Weights**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/{DatasetSize}/{Approach}/`
+- **Logs**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Logs/{DatasetSize}/{Approach}/`
 
 ---
 

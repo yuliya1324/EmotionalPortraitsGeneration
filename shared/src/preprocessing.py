@@ -13,10 +13,11 @@ from tqdm import tqdm
 import random
 
 # Set HuggingFace cache directory
-DATA_DIR = "/Data/yash.bhardwaj"
-os.environ["HF_HOME"] = os.path.join(DATA_DIR, "cache", "huggingface")
-os.environ["HF_DATASETS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "datasets")
-os.environ["TRANSFORMERS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "transformers")
+STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
+CACHE_DIR = os.path.join(STORAGE_BASE, "cache")
+os.environ["HF_HOME"] = os.path.join(CACHE_DIR, "huggingface")
+os.environ["HF_DATASETS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "datasets")
+os.environ["TRANSFORMERS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "transformers")
 
 
 def setup_device():
@@ -116,13 +117,13 @@ def main():
     parser.add_argument(
         "--full_dataset_dir",
         type=str,
-        default=os.path.join(DATA_DIR, "datasets", "emoset_full"),
+        default=os.path.join(STORAGE_BASE, "Datasets", "emoset_full"),
         help="Directory to save/load full dataset"
     )
     parser.add_argument(
         "--output_dir",
         type=str,
-        default=os.path.join("/Data/yash.bhardwaj/EmotionalPortraitGeneration/Datasets", "emoset_captioned_10k"),
+        default=os.path.join(STORAGE_BASE, "Datasets", "emoset_captioned_10k"),
         help="Output directory for processed subset dataset"
     )
     parser.add_argument(

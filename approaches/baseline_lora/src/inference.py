@@ -14,10 +14,11 @@ import json
 import numpy as np
 
 # Set HuggingFace cache directory
-DATA_DIR = "/Data/yash.bhardwaj"
-os.environ["HF_HOME"] = os.path.join(DATA_DIR, "cache", "huggingface")
-os.environ["HF_DATASETS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "datasets")
-os.environ["TRANSFORMERS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "transformers")
+STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
+CACHE_DIR = os.path.join(STORAGE_BASE, "cache")
+os.environ["HF_HOME"] = os.path.join(CACHE_DIR, "huggingface")
+os.environ["HF_DATASETS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "datasets")
+os.environ["TRANSFORMERS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "transformers")
 
 
 # Emotion tokens
@@ -331,25 +332,25 @@ def main():
     parser.add_argument(
         "--lora_path",
         type=str,
-        default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Weights", "10K", "baseline_lora"),
+        default=os.path.join(STORAGE_BASE, "Weights", "10K", "baseline_lora"),
         help="Path to LoRA checkpoint directory"
     )
     parser.add_argument(
         "--learned_embeds_path",
         type=str,
-        default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Weights", "10K", "baseline_lora", "learned_embeds.bin"),
+        default=os.path.join(STORAGE_BASE, "Weights", "10K", "baseline_lora", "learned_embeds.bin"),
         help="Path to learned embeddings file"
     )
     parser.add_argument(
         "--tokenizer_info_path",
         type=str,
-        default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Weights", "10K", "baseline_lora", "tokenizer_info.json"),
+        default=os.path.join(STORAGE_BASE, "Weights", "10K", "baseline_lora", "tokenizer_info.json"),
         help="Path to tokenizer info JSON file"
     )
     parser.add_argument(
         "--output_path",
         type=str,
-        default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Logs", "10K", "baseline_lora", "emotion_comparison.png"),
+        default=os.path.join(STORAGE_BASE, "Logs", "10K", "baseline_lora", "emotion_comparison.png"),
         help="Output path for grid image"
     )
     parser.add_argument(

@@ -22,6 +22,14 @@ from PIL import Image
 import sys
 from pathlib import Path
 
+# Optional wandb import
+try:
+    import wandb
+    WANDB_AVAILABLE = True
+except ImportError:
+    WANDB_AVAILABLE = False
+    print("⚠ wandb not available. Install with: pip install wandb")
+
 # Add shared directory to path
 REPO_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
 SHARED_DIR = REPO_ROOT / "shared" / "src"
@@ -30,11 +38,12 @@ sys.path.insert(0, str(SHARED_DIR))
 from dataset import EmoSetLocalDataset
 
 # Set HuggingFace cache directory
-DATA_DIR = "/Data/yash.bhardwaj"
-os.environ["HF_HOME"] = os.path.join(DATA_DIR, "cache", "huggingface")
-os.environ["HF_DATASETS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "datasets")
-os.environ["TRANSFORMERS_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "transformers")
-os.environ["HF_HUB_CACHE"] = os.path.join(DATA_DIR, "cache", "huggingface", "hub")
+STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
+CACHE_DIR = os.path.join(STORAGE_BASE, "cache")
+os.environ["HF_HOME"] = os.path.join(CACHE_DIR, "huggingface")
+os.environ["HF_DATASETS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "datasets")
+os.environ["TRANSFORMERS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "transformers")
+os.environ["HF_HUB_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "hub")
 
 
 # Emotion tokens to add
@@ -92,32 +101,60 @@ def resize_text_encoder_embeddings(text_encoder: CLIPTextModel, tokenizer: CLIPT
     print(f"Resized text encoder embeddings to {len(tokenizer)} tokens")
 
 
+def get_word_embedding(text_encoder: CLIPTextModel, tokenizer: CLIPTokenizer, word: str):
+    """Get embedding for a word (handles multi-token words by averaging)."""
+    tokens = tokenizer(word, add_special_tokens=False, return_tensors="pt")
+    token_ids = tokens["input_ids"][0]
+    embeddings = text_encoder.get_input_embeddings().weight[token_ids]
+    if len(embeddings) > 1:
+        return embeddings.mean(dim=0).clone()
+    return embeddings[0].clone()
+
+
 def initialize_token_embeddings(
     text_encoder: CLIPTextModel,
     tokenizer: CLIPTokenizer,
     emotion_tokens: list,
-    init_word: str = "style"
+    emotion_words: list = None,
+    init_word: str = None
 ):
     """
-    Initialize new token embeddings with the embedding of a neutral word.
+    Initialize new token embeddings with emotion word embeddings.
     
     Args:
         text_encoder: CLIP text encoder model
         tokenizer: CLIP tokenizer
-        emotion_tokens: List of emotion token strings
-        init_word: Neutral word to use for initialization (default: "style")
+        emotion_tokens: List of emotion token strings (e.g., ["<amusement>", ...])
+        emotion_words: List of corresponding emotion words (e.g., ["amusement", ...])
+        init_word: Fallback word if emotion_words not provided (default: "style")
     """
-    # Get the embedding of the initialization word
-    init_token_id = tokenizer.encode(init_word, add_special_tokens=False)[0]
-    init_embedding = text_encoder.get_input_embeddings().weight[init_token_id].clone()
+    # Default emotion words if not provided
+    if emotion_words is None:
+        emotion_words = [
+            "amusement", "anger", "awe", "contentment",
+            "disgust", "excitement", "fear", "sadness"
+        ]
     
-    # Initialize each emotion token with the init embedding
-    for token in emotion_tokens:
+    # Initialize each emotion token with its corresponding emotion word embedding
+    for token, emotion_word in zip(emotion_tokens, emotion_words):
         token_id = tokenizer.convert_tokens_to_ids(token)
         if token_id != tokenizer.unk_token_id:
-            with torch.no_grad():
-                text_encoder.get_input_embeddings().weight[token_id] = init_embedding.clone()
-            print(f"Initialized {token} (id: {token_id}) with embedding from '{init_word}'")
+            try:
+                # Get emotion word embedding
+                word_emb = get_word_embedding(text_encoder, tokenizer, emotion_word)
+                with torch.no_grad():
+                    text_encoder.get_input_embeddings().weight[token_id] = word_emb
+                print(f"Initialized {token} (id: {token_id}) with embedding from '{emotion_word}'")
+            except Exception as e:
+                # Fallback to init_word if emotion word fails
+                if init_word:
+                    init_token_id = tokenizer.encode(init_word, add_special_tokens=False)[0]
+                    init_embedding = text_encoder.get_input_embeddings().weight[init_token_id].clone()
+                    with torch.no_grad():
+                        text_encoder.get_input_embeddings().weight[token_id] = init_embedding
+                    print(f"Initialized {token} (id: {token_id}) with fallback '{init_word}' (error: {e})")
+                else:
+                    print(f"Warning: Could not initialize {token}: {e}")
         else:
             print(f"Warning: Could not find token ID for {token}")
 
@@ -280,6 +317,9 @@ def generate_validation_images(
         seed: Random seed
         num_inference_steps: Number of diffusion steps
         guidance_scale: Guidance scale
+        
+    Returns:
+        List of tuples (prompt, image_path) for logging
     """
     os.makedirs(output_dir, exist_ok=True)
     
@@ -287,6 +327,8 @@ def generate_validation_images(
     generator = torch.Generator(device=device).manual_seed(seed)
     
     pipeline.set_progress_bar_config(disable=True)
+    
+    validation_results = []
     
     for i, prompt in enumerate(test_prompts):
         try:
@@ -302,8 +344,11 @@ def generate_validation_images(
             filepath = os.path.join(output_dir, filename)
             image.save(filepath)
             print(f"  Generated validation image: {filepath} (prompt: {prompt})")
+            validation_results.append((prompt, filepath))
         except Exception as e:
             print(f"  Warning: Failed to generate validation image for '{prompt}': {e}")
+    
+    return validation_results
 
 
 def save_checkpoint(
@@ -453,11 +498,11 @@ def load_checkpoint(
 
 def main():
     parser = argparse.ArgumentParser(description="Train emotion-conditioned Stable Diffusion")
-    parser.add_argument("--data_dir", type=str, default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Datasets", "emoset_captioned_10k"),
+    parser.add_argument("--data_dir", type=str, default=os.path.join(STORAGE_BASE, "Datasets", "emoset_captioned_10k"),
                        help="Path to local dataset directory")
-    parser.add_argument("--output_dir", type=str, default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Weights", "10K", "baseline_lora"),
+    parser.add_argument("--output_dir", type=str, default=os.path.join(STORAGE_BASE, "Weights", "10K", "baseline_lora"),
                        help="Output directory for checkpoints")
-    parser.add_argument("--log_dir", type=str, default=os.path.join(DATA_DIR, "EmotionalPortraitGeneration", "Logs", "10K", "baseline_lora"),
+    parser.add_argument("--log_dir", type=str, default=os.path.join(STORAGE_BASE, "Logs", "10K", "baseline_lora"),
                        help="Directory for validation images and logs")
     parser.add_argument("--batch_size", type=int, default=4,
                        help="Training batch size")
@@ -465,7 +510,7 @@ def main():
                        help="Number of training epochs")
     parser.add_argument("--lr_lora", type=float, default=1e-4,
                        help="Learning rate for LoRA parameters")
-    parser.add_argument("--lr_embeddings", type=float, default=1e-3,
+    parser.add_argument("--lr_embeddings", type=float, default=5e-3,
                        help="Learning rate for token embeddings")
     parser.add_argument("--lora_r", type=int, default=16,
                        help="LoRA rank")
@@ -473,19 +518,21 @@ def main():
                        help="LoRA alpha")
     parser.add_argument("--save_steps", type=int, default=500,
                        help="Save checkpoint every N steps")
-    parser.add_argument("--validation_steps", type=int, default=500,
+    parser.add_argument("--validation_steps", type=int, default=1000,
                        help="Generate validation images every N steps")
-    parser.add_argument("--gradient_accumulation_steps", type=int, default=4,
+    parser.add_argument("--gradient_accumulation_steps", type=int, default=3,
                        help="Gradient accumulation steps")
     parser.add_argument("--seed", type=int, default=42,
                        help="Random seed")
-    parser.add_argument("--init_word", type=str, default="style",
-                       help="Word to use for initializing emotion token embeddings")
+    parser.add_argument("--init_word", type=str, default=None,
+                       help="Fallback word for initializing emotion token embeddings (default: use emotion words)")
+    parser.add_argument("--emotion_reg_weight", type=float, default=0.05,
+                       help="Weight for emotion regularization loss (0.0 to disable)")
     parser.add_argument("--warmup_steps", type=int, default=500,
                        help="Number of warmup steps for learning rate")
     parser.add_argument("--weight_decay", type=float, default=0.01,
                        help="Weight decay for optimizer")
-    parser.add_argument("--early_stopping_patience", type=int, default=3,
+    parser.add_argument("--early_stopping_patience", type=int, default=5,
                        help="Early stopping patience (epochs)")
     parser.add_argument("--min_lr_ratio", type=float, default=0.1,
                        help="Minimum LR as ratio of initial LR")
@@ -497,17 +544,61 @@ def main():
                        help="Path to checkpoint directory to resume training from")
     parser.add_argument("--resume_step", type=int, default=None,
                        help="Step number to resume from (if not specified, will try to infer from checkpoint)")
+    parser.add_argument("--use_wandb", action="store_true", default=True,
+                       help="Use Weights & Biases for experiment tracking")
+    parser.add_argument("--wandb_project", type=str, default="emotional-portraits",
+                       help="Wandb project name")
+    parser.add_argument("--wandb_entity", type=str, default=None,
+                       help="Wandb entity/team name (optional)")
+    parser.add_argument("--wandb_name", type=str, default=None,
+                       help="Wandb run name (optional, auto-generated if not provided)")
     
     args = parser.parse_args()
     
     # Initialize accelerator
     accelerator = Accelerator(
         gradient_accumulation_steps=args.gradient_accumulation_steps,
-        mixed_precision="fp16" if torch.cuda.is_available() else "no"
+        mixed_precision="fp16" if torch.cuda.is_available() else "no",
+        log_with="wandb" if (args.use_wandb and WANDB_AVAILABLE) else None,
     )
     
     # Set seed
     set_seed(args.seed)
+    
+    # Initialize wandb (only on main process)
+    if args.use_wandb and WANDB_AVAILABLE and accelerator.is_main_process:
+        # Generate run name if not provided
+        if args.wandb_name is None:
+            dataset_name = os.path.basename(args.data_dir).replace("emoset_captioned_", "")
+            args.wandb_name = f"baseline_lora_{dataset_name}_r{args.lora_r}_lr{args.lr_lora}"
+        
+        wandb.init(
+            project=args.wandb_project,
+            entity=args.wandb_entity,
+            name=args.wandb_name,
+            config={
+                "approach": "baseline_lora",
+                "dataset": os.path.basename(args.data_dir),
+                "batch_size": args.batch_size,
+                "num_epochs": args.num_epochs,
+                "lr_lora": args.lr_lora,
+                "lr_embeddings": args.lr_embeddings,
+                "lora_r": args.lora_r,
+                "lora_alpha": args.lora_alpha,
+                "gradient_accumulation_steps": args.gradient_accumulation_steps,
+                "effective_batch_size": args.batch_size * args.gradient_accumulation_steps,
+                "save_steps": args.save_steps,
+                "validation_steps": args.validation_steps,
+                "seed": args.seed,
+                "init_word": args.init_word,
+                "warmup_steps": args.warmup_steps,
+                "weight_decay": args.weight_decay,
+            },
+            tags=["baseline_lora", os.path.basename(args.data_dir)],
+        )
+        print(f"✓ Initialized wandb: {wandb.run.url}")
+    elif args.use_wandb and not WANDB_AVAILABLE:
+        print("⚠ wandb requested but not available. Install with: pip install wandb")
     
     # Setup device
     device = setup_device()
@@ -521,7 +612,7 @@ def main():
         dataset,
         batch_size=args.batch_size,
         shuffle=True,
-        num_workers=4,
+        num_workers=8,
         pin_memory=True if torch.cuda.is_available() else False
     )
     
@@ -532,7 +623,7 @@ def main():
     model_id = "runwayml/stable-diffusion-v1-5"
     
     # Use cache_dir to load from Data folder cache (avoids disk quota issues)
-    cache_dir = os.path.join(DATA_DIR, "cache", "huggingface")
+    cache_dir = os.path.join(CACHE_DIR, "huggingface")
     tokenizer = CLIPTokenizer.from_pretrained(
         model_id,
         subfolder="tokenizer",
@@ -548,6 +639,10 @@ def main():
         subfolder="unet",
         cache_dir=cache_dir
     )
+    # Enable gradient checkpointing to save memory
+    if hasattr(unet, 'enable_gradient_checkpointing'):
+        unet.enable_gradient_checkpointing()
+        print("✓ Enabled gradient checkpointing for UNet (memory optimization)")
     noise_scheduler = DDPMScheduler.from_pretrained(
         model_id,
         subfolder="scheduler",
@@ -586,11 +681,23 @@ def main():
     # We'll use a gradient hook to mask out non-emotion token gradients
     # No need to set requires_grad on individual rows
     
-    # Initialize token embeddings
+    # Initialize token embeddings with emotion word embeddings
+    # IMPORTANT: Order must match EMOTION_TOKENS exactly!
+    EMOTION_WORDS = [
+        "amusement",  # matches '<amusement>'
+        "awe",        # matches '<awe>'
+        "contentment", # matches '<contentment>'
+        "excitement", # matches '<excitement>'
+        "anger",      # matches '<anger>'
+        "disgust",    # matches '<disgust>'
+        "fear",       # matches '<fear>'
+        "sadness"     # matches '<sadness>'
+    ]
     initialize_token_embeddings(
         text_encoder,
         tokenizer,
         EMOTION_TOKENS,
+        emotion_words=EMOTION_WORDS,
         init_word=args.init_word
     )
     
@@ -714,7 +821,7 @@ def main():
     if accelerator.is_main_process:
         # Create a temporary pipeline for validation (will be updated with latest weights)
         # Use cache_dir to load from Data folder cache
-        cache_dir = os.path.join(DATA_DIR, "cache", "huggingface")
+        cache_dir = os.path.join(CACHE_DIR, "huggingface")
         validation_pipeline = StableDiffusionPipeline.from_pretrained(
             model_id,
             tokenizer=tokenizer,
@@ -734,17 +841,21 @@ def main():
     # If resume_step wasn't set above, check args
     if 'resume_step' not in locals():
         resume_step = args.resume_step if args.resume_from else None
-    global_step = resume_step if resume_step else 0
-    start_epoch = 0
     
-    # Calculate starting epoch from resume step
-    if resume_step:
-        num_update_steps_per_epoch = len(dataloader) // args.gradient_accumulation_steps
-        start_epoch = resume_step // num_update_steps_per_epoch
-        # No scheduler to update - we use manual LR updates
-        print(f"Resuming from step {resume_step}, epoch {start_epoch + 1}")
-    
+    # Calculate starting epoch and step offset from resume step
     num_update_steps_per_epoch = len(dataloader) // args.gradient_accumulation_steps
+    if resume_step:
+        start_epoch = resume_step // num_update_steps_per_epoch
+        step_offset = resume_step % num_update_steps_per_epoch
+        print(f"Resuming from step {resume_step}, epoch {start_epoch + 1}, step offset {step_offset}")
+    else:
+        start_epoch = 0
+        step_offset = 0
+    
+    # Initialize global_step to 0 - it will be incremented as we process batches
+    # The skip logic below will fast-forward to resume_step
+    global_step = 0
+    
     test_prompts = [args.test_prompt_1, args.test_prompt_2]
     
     # Loss tracking variables
@@ -753,6 +864,11 @@ def main():
     no_improve_count = 0
     ema_loss = None  # Exponential moving average
     ema_alpha = 0.99
+    # Store loss components for logging
+    last_reconstruction_loss = 0.0
+    last_emotion_reg_loss = 0.0
+    # Store previous step's embedding values for continuity checking
+    last_embedding_values_after = None
     
     # Try to load loss history if resuming
     if args.resume_from:
@@ -787,7 +903,6 @@ def main():
                 # Only increment global_step when we would do an optimizer step
                 # (every gradient_accumulation_steps batches)
                 if (step + 1) % args.gradient_accumulation_steps == 0:
-                    lr_scheduler.step()
                     global_step += 1
                 continue
             
@@ -856,8 +971,41 @@ def main():
                     )
                 noise_pred = model_output.sample
                 
-                # Compute loss
-                loss = compute_loss(noise_pred, noise, timesteps)
+                # Compute reconstruction loss
+                reconstruction_loss = compute_loss(noise_pred, noise, timesteps)
+                
+                # Compute emotion regularization loss (if enabled)
+                emotion_reg_loss = torch.tensor(0.0, device=device, dtype=reconstruction_loss.dtype)
+                if args.emotion_reg_weight > 0:
+                    unwrapped_text_encoder = accelerator.unwrap_model(text_encoder)
+                    embedding_layer = unwrapped_text_encoder.get_input_embeddings()
+                    emotion_token_ids = [tokenizer.convert_tokens_to_ids(token) for token in EMOTION_TOKENS]
+                    
+                    # Get emotion word embeddings for regularization
+                    EMOTION_WORDS = [
+                        "amusement", "anger", "awe", "contentment",
+                        "disgust", "excitement", "fear", "sadness"
+                    ]
+                    
+                    reg_losses = []
+                    for token_id, emotion_word in zip(emotion_token_ids, EMOTION_WORDS):
+                        if token_id != tokenizer.unk_token_id:
+                            token_emb = embedding_layer.weight[token_id]
+                            word_emb = get_word_embedding(unwrapped_text_encoder, tokenizer, emotion_word).to(
+                                device=device, dtype=token_emb.dtype
+                            )
+                            # MSE loss to push token toward emotion word
+                            reg_losses.append(F.mse_loss(token_emb, word_emb))
+                    
+                    if reg_losses:
+                        emotion_reg_loss = torch.stack(reg_losses).mean()
+                
+                # Total loss
+                loss = reconstruction_loss + args.emotion_reg_weight * emotion_reg_loss
+                
+                # Store loss components for logging
+                last_reconstruction_loss = reconstruction_loss.item() if isinstance(reconstruction_loss, torch.Tensor) else float(reconstruction_loss)
+                last_emotion_reg_loss = emotion_reg_loss.item() if isinstance(emotion_reg_loss, torch.Tensor) else float(emotion_reg_loss)
                 
                 # Backward pass
                 # DEBUG: Log detailed state before backward (especially after validation to catch issues)
@@ -938,29 +1086,61 @@ def main():
                     
                     # Check gradients BEFORE optimizer step
                     embedding_grads = []
-                    embedding_values_before = []
+                    embedding_values_before = {}  # Store individual token embeddings, not full tensor norm
                     embedding_in_optimizer = False
                     
                     for param_group in optimizer.param_groups:
                         if param_group.get('name') == 'embeddings':
                             embedding_in_optimizer = True
                             for param in param_group['params']:
-                                embedding_values_before.append(param.data.norm().item())
                                 if param.grad is not None:
                                     embedding_grads.append(param.grad.norm().item())
                     
-                    # Also check embedding layer directly for gradients
+                    # Check ONLY emotion token embeddings (not full tensor)
                     for token_id in emotion_token_ids:
                         if token_id != tokenizer.unk_token_id:
                             emb_weight = embedding_layer.weight[token_id]
+                            # Store the actual embedding values for this token
+                            embedding_values_before[token_id] = emb_weight.data.clone().cpu()
                             if emb_weight.grad is not None:
                                 embedding_grads.append(emb_weight.grad.norm().item())
                     
+                    # Calculate average norm of emotion token embeddings only
+                    if embedding_values_before:
+                        emotion_emb_norms = [emb.norm().item() for emb in embedding_values_before.values()]
+                        avg_emb_norm = np.mean(emotion_emb_norms)
+                    else:
+                        avg_emb_norm = None
+                    
                     print(f"\n[Step {global_step}] Embedding Update Verification (BEFORE optimizer.step()):", flush=True)
                     print(f"  Embeddings in optimizer: {'✓' if embedding_in_optimizer else '✗'}", flush=True)
-                    if embedding_values_before:
-                        avg_emb_norm = np.mean(embedding_values_before)
-                        print(f"  Avg embedding value norm (before update): {avg_emb_norm:.6f}", flush=True)
+                    if avg_emb_norm is not None:
+                        print(f"  Avg emotion token embedding norm (before update): {avg_emb_norm:.6f}", flush=True)
+                        print(f"  Checking {len(embedding_values_before)} emotion tokens", flush=True)
+                    
+                    # CRITICAL CHECK: Compare with previous step's "after" values
+                    # This verifies embeddings persist correctly between steps
+                    if last_embedding_values_after is not None:
+                        mismatches_between_steps = []
+                        for token_id in emotion_token_ids:
+                            if token_id != tokenizer.unk_token_id:
+                                if token_id in embedding_values_before and token_id in last_embedding_values_after:
+                                    emb_now = embedding_values_before[token_id]
+                                    emb_prev = last_embedding_values_after[token_id]
+                                    diff = (emb_now - emb_prev).norm().item()
+                                    if diff > 1e-6:  # Allow small floating point differences
+                                        token_name = [token for token, tid in zip(EMOTION_TOKENS, emotion_token_ids) if tid == token_id][0]
+                                        mismatches_between_steps.append((token_name, token_id, diff))
+                        
+                        if mismatches_between_steps:
+                            print(f"  ⚠⚠⚠ CRITICAL: Embeddings changed between steps (should persist)!", flush=True)
+                            print(f"  Found {len(mismatches_between_steps)} mismatches:", flush=True)
+                            for token_name, token_id, diff_val in mismatches_between_steps[:5]:  # Show first 5
+                                print(f"    {token_name} (id={token_id}): diff={diff_val:.8f}", flush=True)
+                            print(f"  This indicates embeddings are being modified outside optimizer.step()!", flush=True)
+                        else:
+                            print(f"  ✓ Embeddings match previous step (correct persistence)", flush=True)
+                    
                     if embedding_grads:
                         avg_grad_norm = np.mean(embedding_grads)
                         print(f"  Avg embedding grad norm: {avg_grad_norm:.6f}", flush=True)
@@ -1034,6 +1214,10 @@ def main():
                 try:
                     optimizer.step()
                     
+                    # Clear CUDA cache periodically to prevent memory fragmentation
+                    if global_step % 100 == 0 and torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                    
                     # DEBUG: Log if optimizer step succeeded (especially after validation to catch issues)
                     if is_post_validation:
                         print(f"[Step {global_step}] ✓ Optimizer.step() completed successfully", flush=True)
@@ -1098,32 +1282,62 @@ def main():
                     embedding_layer = unwrapped_text_encoder.get_input_embeddings()
                     emotion_token_ids = [tokenizer.convert_tokens_to_ids(token) for token in EMOTION_TOKENS]
                     
-                    embedding_values_after = []
-                    for param_group in optimizer.param_groups:
-                        if param_group.get('name') == 'embeddings':
-                            for param in param_group['params']:
-                                embedding_values_after.append(param.data.norm().item())
-                    
-                    # Also check embedding layer directly
+                    # Check ONLY emotion token embeddings (not full tensor)
+                    embedding_values_after = {}
                     for token_id in emotion_token_ids:
                         if token_id != tokenizer.unk_token_id:
                             emb_weight = embedding_layer.weight[token_id]
-                            embedding_values_after.append(emb_weight.data.norm().item())
+                            # Store the actual embedding values for this token
+                            embedding_values_after[token_id] = emb_weight.data.clone().cpu()
                     
                     if embedding_values_after:
-                        avg_emb_norm_after = np.mean(embedding_values_after)
+                        emotion_emb_norms_after = [emb.norm().item() for emb in embedding_values_after.values()]
+                        avg_emb_norm_after = np.mean(emotion_emb_norms_after)
                         print(f"[Step {global_step}] Embedding Update Verification (AFTER optimizer.step()):", flush=True)
-                        print(f"  Avg embedding value norm (after update): {avg_emb_norm_after:.6f}", flush=True)
+                        print(f"  Avg emotion token embedding norm (after update): {avg_emb_norm_after:.6f}", flush=True)
                         
                         # Compare with before if we have it
                         if embedding_values_before:
-                            avg_emb_norm_before = np.mean(embedding_values_before)
+                            emotion_emb_norms_before = [emb.norm().item() for emb in embedding_values_before.values()]
+                            avg_emb_norm_before = np.mean(emotion_emb_norms_before)
                             diff = avg_emb_norm_after - avg_emb_norm_before
                             print(f"  Change in norm: {diff:.8f}", flush=True)
-                            if abs(diff) < 1e-6:
-                                print(f"  ✗ WARNING: Embeddings NOT changing! Norm difference is {diff:.8f}", flush=True)
+                            
+                            # CRITICAL: Check if individual token embeddings match between steps
+                            # This verifies that embeddings persist correctly between steps
+                            mismatches = []
+                            for token_id in emotion_token_ids:
+                                if token_id != tokenizer.unk_token_id:
+                                    if token_id in embedding_values_before and token_id in embedding_values_after:
+                                        emb_before = embedding_values_before[token_id]
+                                        emb_after = embedding_values_after[token_id]
+                                        # Check if they're the same (should match from previous step's after to this step's before)
+                                        # But wait - we're checking AFTER update, so they should be DIFFERENT from before
+                                        # The real check is: after step N should match before step N+1
+                                        # So we can't check here, but we can verify they changed
+                                        diff_per_token = (emb_after - emb_before).norm().item()
+                                        if diff_per_token < 1e-7:
+                                            mismatches.append((token_id, diff_per_token))
+                            
+                            if mismatches:
+                                print(f"  ⚠ WARNING: {len(mismatches)} emotion tokens did NOT change!", flush=True)
+                                for token_id, diff_val in mismatches[:3]:  # Show first 3
+                                    token_name = [token for token, tid in zip(EMOTION_TOKENS, emotion_token_ids) if tid == token_id][0]
+                                    print(f"    Token {token_name} (id={token_id}): diff={diff_val:.10f}", flush=True)
                             else:
-                                print(f"  ✓ Embeddings ARE changing!", flush=True)
+                                print(f"  ✓ All emotion token embeddings changed (as expected after update)", flush=True)
+                            
+                            if abs(diff) < 1e-6:
+                                print(f"  ✗ WARNING: Average embedding norm NOT changing! Difference is {diff:.8f}", flush=True)
+                            else:
+                                print(f"  ✓ Embeddings ARE changing (norm diff: {diff:.8f})!", flush=True)
+                        else:
+                            print(f"  ⚠ No 'before' values to compare with", flush=True)
+                        
+                        # Store for next step's comparison (only keep one set to save memory)
+                        last_embedding_values_after = embedding_values_after
+                        # Clear old embedding_values_before to free memory
+                        embedding_values_before = None
                         print(flush=True)
                 
                 optimizer.zero_grad()
@@ -1133,6 +1347,10 @@ def main():
             # Loss tracking
             current_loss = loss.item()
             loss_history.append(current_loss)
+            
+            # Limit loss_history size to prevent memory growth (keep last 10K entries)
+            if len(loss_history) > 10000:
+                loss_history = loss_history[-10000:]
             
             # Update EMA
             if ema_loss is None:
@@ -1147,6 +1365,32 @@ def main():
                 'ema_loss': f'{ema_loss:.4f}',
                 'lr': f'{current_lr:.2e}'
             })
+            
+            # Log to wandb (every step for real-time monitoring)
+            if args.use_wandb and WANDB_AVAILABLE and accelerator.is_main_process:
+                log_dict = {
+                    "train/loss": current_loss,
+                    "train/reconstruction_loss": last_reconstruction_loss,
+                    "train/emotion_reg_loss": last_emotion_reg_loss,
+                    "train/ema_loss": ema_loss,
+                    "train/learning_rate": current_lr,
+                    "train/global_step": global_step,
+                    "train/epoch": epoch + 1,
+                }
+                
+                # Log learning rates for each parameter group
+                for i, param_group in enumerate(optimizer.param_groups):
+                    group_name = param_group.get('name', f'group_{i}')
+                    log_dict[f"train/lr_{group_name}"] = param_group['lr']
+                
+                # Log GPU metrics if available
+                if torch.cuda.is_available():
+                    log_dict["system/gpu_memory_used_mb"] = torch.cuda.memory_allocated() / 1024**2
+                    log_dict["system/gpu_memory_reserved_mb"] = torch.cuda.memory_reserved() / 1024**2
+                
+                wandb.log(log_dict, step=global_step)
+                
+                wandb.log(log_dict, step=global_step)
             
             # Validation logging
             if global_step % args.validation_steps == 0 and accelerator.is_main_process:
@@ -1224,13 +1468,24 @@ def main():
                     unwrapped_text_encoder.eval()
                     
                     try:
-                        generate_validation_images(
+                        validation_images = generate_validation_images(
                             validation_pipeline,
                             test_prompts,
                             args.log_dir,
                             global_step,
                             seed=args.seed
                         )
+                        
+                        # Log validation images to wandb
+                        if args.use_wandb and WANDB_AVAILABLE and accelerator.is_main_process:
+                            wandb_images = []
+                            for prompt, image_path in validation_images:
+                                img = Image.open(image_path)
+                                wandb_images.append(wandb.Image(img, caption=prompt))
+                            wandb.log({
+                                "validation/images": wandb_images,
+                                "validation/step": global_step,
+                            }, step=global_step)
                     finally:
                         # CRITICAL: Restore original training mode immediately after validation
                         # This ensures the models are in the correct state for training
@@ -1380,11 +1635,23 @@ def main():
             print(f"  Average loss: {epoch_avg_loss:.4f}")
             print(f"  EMA loss: {ema_loss:.4f}")
             
+            # Log epoch metrics to wandb
+            if args.use_wandb and WANDB_AVAILABLE:
+                wandb.log({
+                    "epoch/avg_loss": epoch_avg_loss,
+                    "epoch/ema_loss": ema_loss,
+                    "epoch/epoch": epoch + 1,
+                }, step=global_step)
+            
             # Early stopping check
             if epoch_avg_loss < best_loss:
                 best_loss = epoch_avg_loss
                 no_improve_count = 0
                 print(f"  ✓ New best loss: {best_loss:.4f}")
+                
+                # Log best loss to wandb
+                if args.use_wandb and WANDB_AVAILABLE:
+                    wandb.log({"best_loss": best_loss}, step=global_step)
                 # Save best model checkpoint
                 save_checkpoint(
                     accelerator.unwrap_model(unet),
@@ -1472,6 +1739,16 @@ def main():
     print(f"Final checkpoint saved to {args.output_dir}")
     if accelerator.is_main_process:
         print(f"Best loss: {best_loss:.4f}")
+        
+        # Final wandb logging
+        if args.use_wandb and WANDB_AVAILABLE:
+            wandb.log({
+                "final/best_loss": best_loss,
+                "final/total_steps": global_step,
+                "final/total_epochs": epoch + 1,
+            })
+            wandb.finish()
+            print(f"✓ Wandb run completed")
 
 
 if __name__ == "__main__":

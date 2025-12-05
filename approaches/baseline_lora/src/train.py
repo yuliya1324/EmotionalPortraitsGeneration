@@ -841,21 +841,17 @@ def main():
     # If resume_step wasn't set above, check args
     if 'resume_step' not in locals():
         resume_step = args.resume_step if args.resume_from else None
+    global_step = resume_step if resume_step else 0
+    start_epoch = 0
     
-    # Calculate starting epoch and step offset from resume step
-    num_update_steps_per_epoch = len(dataloader) // args.gradient_accumulation_steps
+    # Calculate starting epoch from resume step
     if resume_step:
+        num_update_steps_per_epoch = len(dataloader) // args.gradient_accumulation_steps
         start_epoch = resume_step // num_update_steps_per_epoch
-        step_offset = resume_step % num_update_steps_per_epoch
-        print(f"Resuming from step {resume_step}, epoch {start_epoch + 1}, step offset {step_offset}")
-    else:
-        start_epoch = 0
-        step_offset = 0
+        # No scheduler to update - we use manual LR updates
+        print(f"Resuming from step {resume_step}, epoch {start_epoch + 1}")
     
-    # Initialize global_step to 0 - it will be incremented as we process batches
-    # The skip logic below will fast-forward to resume_step
-    global_step = 0
-    
+    num_update_steps_per_epoch = len(dataloader) // args.gradient_accumulation_steps
     test_prompts = [args.test_prompt_1, args.test_prompt_2]
     
     # Loss tracking variables
@@ -867,8 +863,6 @@ def main():
     # Store loss components for logging
     last_reconstruction_loss = 0.0
     last_emotion_reg_loss = 0.0
-    # Store previous step's embedding values for continuity checking
-    last_embedding_values_after = None
     
     # Try to load loss history if resuming
     if args.resume_from:
@@ -903,6 +897,7 @@ def main():
                 # Only increment global_step when we would do an optimizer step
                 # (every gradient_accumulation_steps batches)
                 if (step + 1) % args.gradient_accumulation_steps == 0:
+                    lr_scheduler.step()
                     global_step += 1
                 continue
             
@@ -1086,61 +1081,29 @@ def main():
                     
                     # Check gradients BEFORE optimizer step
                     embedding_grads = []
-                    embedding_values_before = {}  # Store individual token embeddings, not full tensor norm
+                    embedding_values_before = []
                     embedding_in_optimizer = False
                     
                     for param_group in optimizer.param_groups:
                         if param_group.get('name') == 'embeddings':
                             embedding_in_optimizer = True
                             for param in param_group['params']:
+                                embedding_values_before.append(param.data.norm().item())
                                 if param.grad is not None:
                                     embedding_grads.append(param.grad.norm().item())
                     
-                    # Check ONLY emotion token embeddings (not full tensor)
+                    # Also check embedding layer directly for gradients
                     for token_id in emotion_token_ids:
                         if token_id != tokenizer.unk_token_id:
                             emb_weight = embedding_layer.weight[token_id]
-                            # Store the actual embedding values for this token
-                            embedding_values_before[token_id] = emb_weight.data.clone().cpu()
                             if emb_weight.grad is not None:
                                 embedding_grads.append(emb_weight.grad.norm().item())
                     
-                    # Calculate average norm of emotion token embeddings only
-                    if embedding_values_before:
-                        emotion_emb_norms = [emb.norm().item() for emb in embedding_values_before.values()]
-                        avg_emb_norm = np.mean(emotion_emb_norms)
-                    else:
-                        avg_emb_norm = None
-                    
                     print(f"\n[Step {global_step}] Embedding Update Verification (BEFORE optimizer.step()):", flush=True)
                     print(f"  Embeddings in optimizer: {'✓' if embedding_in_optimizer else '✗'}", flush=True)
-                    if avg_emb_norm is not None:
-                        print(f"  Avg emotion token embedding norm (before update): {avg_emb_norm:.6f}", flush=True)
-                        print(f"  Checking {len(embedding_values_before)} emotion tokens", flush=True)
-                    
-                    # CRITICAL CHECK: Compare with previous step's "after" values
-                    # This verifies embeddings persist correctly between steps
-                    if last_embedding_values_after is not None:
-                        mismatches_between_steps = []
-                        for token_id in emotion_token_ids:
-                            if token_id != tokenizer.unk_token_id:
-                                if token_id in embedding_values_before and token_id in last_embedding_values_after:
-                                    emb_now = embedding_values_before[token_id]
-                                    emb_prev = last_embedding_values_after[token_id]
-                                    diff = (emb_now - emb_prev).norm().item()
-                                    if diff > 1e-6:  # Allow small floating point differences
-                                        token_name = [token for token, tid in zip(EMOTION_TOKENS, emotion_token_ids) if tid == token_id][0]
-                                        mismatches_between_steps.append((token_name, token_id, diff))
-                        
-                        if mismatches_between_steps:
-                            print(f"  ⚠⚠⚠ CRITICAL: Embeddings changed between steps (should persist)!", flush=True)
-                            print(f"  Found {len(mismatches_between_steps)} mismatches:", flush=True)
-                            for token_name, token_id, diff_val in mismatches_between_steps[:5]:  # Show first 5
-                                print(f"    {token_name} (id={token_id}): diff={diff_val:.8f}", flush=True)
-                            print(f"  This indicates embeddings are being modified outside optimizer.step()!", flush=True)
-                        else:
-                            print(f"  ✓ Embeddings match previous step (correct persistence)", flush=True)
-                    
+                    if embedding_values_before:
+                        avg_emb_norm = np.mean(embedding_values_before)
+                        print(f"  Avg embedding value norm (before update): {avg_emb_norm:.6f}", flush=True)
                     if embedding_grads:
                         avg_grad_norm = np.mean(embedding_grads)
                         print(f"  Avg embedding grad norm: {avg_grad_norm:.6f}", flush=True)
@@ -1214,10 +1177,6 @@ def main():
                 try:
                     optimizer.step()
                     
-                    # Clear CUDA cache periodically to prevent memory fragmentation
-                    if global_step % 100 == 0 and torch.cuda.is_available():
-                        torch.cuda.empty_cache()
-                    
                     # DEBUG: Log if optimizer step succeeded (especially after validation to catch issues)
                     if is_post_validation:
                         print(f"[Step {global_step}] ✓ Optimizer.step() completed successfully", flush=True)
@@ -1282,62 +1241,32 @@ def main():
                     embedding_layer = unwrapped_text_encoder.get_input_embeddings()
                     emotion_token_ids = [tokenizer.convert_tokens_to_ids(token) for token in EMOTION_TOKENS]
                     
-                    # Check ONLY emotion token embeddings (not full tensor)
-                    embedding_values_after = {}
+                    embedding_values_after = []
+                    for param_group in optimizer.param_groups:
+                        if param_group.get('name') == 'embeddings':
+                            for param in param_group['params']:
+                                embedding_values_after.append(param.data.norm().item())
+                    
+                    # Also check embedding layer directly
                     for token_id in emotion_token_ids:
                         if token_id != tokenizer.unk_token_id:
                             emb_weight = embedding_layer.weight[token_id]
-                            # Store the actual embedding values for this token
-                            embedding_values_after[token_id] = emb_weight.data.clone().cpu()
+                            embedding_values_after.append(emb_weight.data.norm().item())
                     
                     if embedding_values_after:
-                        emotion_emb_norms_after = [emb.norm().item() for emb in embedding_values_after.values()]
-                        avg_emb_norm_after = np.mean(emotion_emb_norms_after)
+                        avg_emb_norm_after = np.mean(embedding_values_after)
                         print(f"[Step {global_step}] Embedding Update Verification (AFTER optimizer.step()):", flush=True)
-                        print(f"  Avg emotion token embedding norm (after update): {avg_emb_norm_after:.6f}", flush=True)
+                        print(f"  Avg embedding value norm (after update): {avg_emb_norm_after:.6f}", flush=True)
                         
                         # Compare with before if we have it
                         if embedding_values_before:
-                            emotion_emb_norms_before = [emb.norm().item() for emb in embedding_values_before.values()]
-                            avg_emb_norm_before = np.mean(emotion_emb_norms_before)
+                            avg_emb_norm_before = np.mean(embedding_values_before)
                             diff = avg_emb_norm_after - avg_emb_norm_before
                             print(f"  Change in norm: {diff:.8f}", flush=True)
-                            
-                            # CRITICAL: Check if individual token embeddings match between steps
-                            # This verifies that embeddings persist correctly between steps
-                            mismatches = []
-                            for token_id in emotion_token_ids:
-                                if token_id != tokenizer.unk_token_id:
-                                    if token_id in embedding_values_before and token_id in embedding_values_after:
-                                        emb_before = embedding_values_before[token_id]
-                                        emb_after = embedding_values_after[token_id]
-                                        # Check if they're the same (should match from previous step's after to this step's before)
-                                        # But wait - we're checking AFTER update, so they should be DIFFERENT from before
-                                        # The real check is: after step N should match before step N+1
-                                        # So we can't check here, but we can verify they changed
-                                        diff_per_token = (emb_after - emb_before).norm().item()
-                                        if diff_per_token < 1e-7:
-                                            mismatches.append((token_id, diff_per_token))
-                            
-                            if mismatches:
-                                print(f"  ⚠ WARNING: {len(mismatches)} emotion tokens did NOT change!", flush=True)
-                                for token_id, diff_val in mismatches[:3]:  # Show first 3
-                                    token_name = [token for token, tid in zip(EMOTION_TOKENS, emotion_token_ids) if tid == token_id][0]
-                                    print(f"    Token {token_name} (id={token_id}): diff={diff_val:.10f}", flush=True)
-                            else:
-                                print(f"  ✓ All emotion token embeddings changed (as expected after update)", flush=True)
-                            
                             if abs(diff) < 1e-6:
-                                print(f"  ✗ WARNING: Average embedding norm NOT changing! Difference is {diff:.8f}", flush=True)
+                                print(f"  ✗ WARNING: Embeddings NOT changing! Norm difference is {diff:.8f}", flush=True)
                             else:
-                                print(f"  ✓ Embeddings ARE changing (norm diff: {diff:.8f})!", flush=True)
-                        else:
-                            print(f"  ⚠ No 'before' values to compare with", flush=True)
-                        
-                        # Store for next step's comparison (only keep one set to save memory)
-                        last_embedding_values_after = embedding_values_after
-                        # Clear old embedding_values_before to free memory
-                        embedding_values_before = None
+                                print(f"  ✓ Embeddings ARE changing!", flush=True)
                         print(flush=True)
                 
                 optimizer.zero_grad()
@@ -1347,10 +1276,6 @@ def main():
             # Loss tracking
             current_loss = loss.item()
             loss_history.append(current_loss)
-            
-            # Limit loss_history size to prevent memory growth (keep last 10K entries)
-            if len(loss_history) > 10000:
-                loss_history = loss_history[-10000:]
             
             # Update EMA
             if ema_loss is None:

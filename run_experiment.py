@@ -294,6 +294,8 @@ Examples:
     evaluate_parser.add_argument('--seed', type=int, default=42)
     evaluate_parser.add_argument('--num-inference-steps', type=int, default=50)
     evaluate_parser.add_argument('--guidance-scale', type=float, default=7.5)
+    evaluate_parser.add_argument('--classifier-scale', type=float, default=20.0,
+                                help='Classifier guidance strength (for classifier_guidance approach)')
     
     args = parser.parse_args()
     
@@ -350,6 +352,8 @@ Examples:
         ]
         if args.skip_generation:
             cmd.append("--skip-generation")
+        if args.approach == "classifier_guidance":
+            cmd.extend(["--classifier-scale", str(args.classifier_scale)])
         
         print("="*70)
         print(f"Running Evaluation")
@@ -364,6 +368,10 @@ Examples:
     else:
         parser.print_help()
         return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
 
 
 if __name__ == "__main__":

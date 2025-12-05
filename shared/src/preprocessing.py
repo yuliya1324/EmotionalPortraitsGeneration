@@ -261,23 +261,23 @@ def main():
         # Load images for this chunk only
         images_list = []
         for example in tqdm(chunk_subset, desc=f"  Loading images", leave=False):
-            image = example['image']
-            if not isinstance(image, Image.Image):
+        image = example['image']
+        if not isinstance(image, Image.Image):
                 if isinstance(image, str):
-                    image = Image.open(image).convert('RGB')
+            image = Image.open(image).convert('RGB')
                 else:
                     # Try to convert if it's already an array
                     image = Image.fromarray(image).convert('RGB')
-            images_list.append(image)
-        
+        images_list.append(image)
+    
         # Generate captions for this chunk
         chunk_captions = generate_captions_batch(
-            processor,
-            model,
-            images_list,
-            device,
-            batch_size=args.batch_size
-        )
+        processor,
+        model,
+        images_list,
+        device,
+        batch_size=args.batch_size
+    )
         
         generated_captions.extend(chunk_captions)
         num_processed = len(chunk_captions)

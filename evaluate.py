@@ -33,34 +33,19 @@ STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
 EMOTIONCLIP_PATH = "/Data/yash.bhardwaj/EmotionCLIP"
 
 # ============================================================================
-# Evaluation Prompts (25 diverse scene prompts)
+# Evaluation Prompts (10 simple scene prompts)
 # ============================================================================
 EVALUATION_PROMPTS = [
-    "A quiet residential street with parked cars and trees",
-    "A narrow alley between old buildings with a few posters on the walls",
-    "A wide city square with a fountain and surrounding cafés",
-    "A subway platform with signs, benches, and overhead lighting",
-    "The inside of an empty train carriage with seats and windows",
-    "A small convenience store aisle with shelves of snacks and drinks",
-    "An outdoor market with stalls of fruits, vegetables, and people walking",
-    "A calm beach with gentle waves and a cloudy sky",
-    "A rocky shoreline with tide pools and scattered seaweed",
-    "A forest path with tall trees and sunlight filtering through leaves",
-    "A grassy field with a lone tree under an open sky",
-    "A mountain lake with reflections of peaks in the water",
-    "A wooden cabin in the snow with smoke coming from a chimney",
-    "A desert road stretching into the distance with a few shrubs",
-    "A bridge over a river with boats passing underneath",
-    "A harbor with docked boats, ropes, and shipping containers",
-    "A rooftop view of a city skyline at dusk",
-    "A park with a playground, swings, and a bench nearby",
-    "A museum gallery with paintings and soft lighting",
-    "A library aisle with tall bookshelves and reading tables",
-    "A classroom with desks, a whiteboard, and a window",
-    "A kitchen counter with utensils, a cutting board, and a bowl of fruit",
-    "A living room with a sofa, a lamp, and curtains by a window",
-    "A long hallway in a large building with doors and ceiling lights",
-    "A stairwell with metal railings and concrete walls",
+    "A park",
+    "A beach",
+    "A forest",
+    "A city street",
+    "A mountain",
+    "A room",
+    "A garden",
+    "A bridge",
+    "A lake",
+    "A field",
 ]
 
 # EmoSet emotions
@@ -205,7 +190,10 @@ def generate_images(
     seed: int = 42,
     num_inference_steps: int = 50,
     guidance_scale: float = 7.5,
-    prompt_template: str = "{prompt}, conveying {emotion}"
+    prompt_template: str = "{prompt}, conveying {emotion}",
+    approach: str = "baseline_lora",
+    classifier=None,
+    classifier_scale: float = 20.0,
 ):
     """
     Generate images for all prompt-emotion combinations.
@@ -235,29 +223,51 @@ def generate_images(
     
     for prompt_idx, prompt in enumerate(prompts):
         for emotion_idx, emotion in enumerate(emotions):
-            # Use emotion token in the prompt (matches training format)
-            emotion_token = f"<{emotion}>"
-            
-            # Full prompt with emotion token at the start (matches training)
-            full_prompt = f"{emotion_token} {prompt}"
-            
-            # Also create a natural language version for CLIP evaluation
-            natural_prompt = prompt_template.format(prompt=prompt, emotion=emotion)
-            
-            # Generate with fixed seed for reproducibility across emotions
-            generator = torch.Generator(device=device).manual_seed(seed + prompt_idx)
+            filename = f"prompt{prompt_idx:02d}_{emotion}.png"
+            image_path = os.path.join(output_dir, filename)
             
             try:
-                image = pipe(
-                    prompt=full_prompt,
-                    num_inference_steps=num_inference_steps,
-                    guidance_scale=guidance_scale,
-                    generator=generator,
-                ).images[0]
+                if approach == "classifier_guidance":
+                    # Classifier guidance: use plain prompt, emotion is guided via classifier
+                    full_prompt = prompt
+                    natural_prompt = prompt_template.format(prompt=prompt, emotion=emotion)
+                    
+                    # Import classifier guidance function
+                    import sys
+                    cg_inference_path = os.path.join(REPO_ROOT, "approaches", "classifier_guidance", "src")
+                    if cg_inference_path not in sys.path:
+                        sys.path.insert(0, cg_inference_path)
+                    from inference import generate_with_classifier_guidance
+                    
+                    image, _ = generate_with_classifier_guidance(
+                        pipe=pipe,
+                        classifier=classifier,
+                        prompt=full_prompt,
+                        target_emotion_idx=emotion_idx,
+                        num_inference_steps=num_inference_steps,
+                        guidance_scale=guidance_scale,
+                        classifier_scale=classifier_scale,
+                        seed=seed + prompt_idx,
+                        device=device,
+                        track_metrics=False,
+                        use_wandb=False,
+                    )
+                else:
+                    # Baseline LoRA: use emotion token in the prompt
+                    emotion_token = f"<{emotion}>"
+                    full_prompt = f"{emotion_token} {prompt}"
+                    natural_prompt = prompt_template.format(prompt=prompt, emotion=emotion)
+                    
+                    # Generate with fixed seed for reproducibility across emotions
+                    generator = torch.Generator(device=device).manual_seed(seed + prompt_idx)
+                    image = pipe(
+                        prompt=full_prompt,
+                        num_inference_steps=num_inference_steps,
+                        guidance_scale=guidance_scale,
+                        generator=generator,
+                    ).images[0]
                 
                 # Save image
-                filename = f"prompt{prompt_idx:02d}_{emotion}.png"
-                image_path = os.path.join(output_dir, filename)
                 image.save(image_path)
                 
                 results.append({
@@ -643,6 +653,10 @@ Examples:
                        help='Number of diffusion steps')
     parser.add_argument('--guidance-scale', type=float, default=7.5,
                        help='Guidance scale for generation')
+    parser.add_argument('--classifier-scale', type=float, default=20.0,
+                       help='Classifier guidance strength (for classifier_guidance approach)')
+    parser.add_argument('--images-dir', type=str, default=None,
+                       help='Explicit path for saving images (overrides default)')
     
     args = parser.parse_args()
     
@@ -659,7 +673,10 @@ Examples:
     weights_dir = os.path.join(STORAGE_BASE, "Weights", size_normalized, args.approach)
     
     # Always save evaluation images in validation_images/{size}/{approach} in repository root
-    images_dir = os.path.join(REPO_ROOT, "validation_images", size_normalized, args.approach)
+    if args.images_dir:
+        images_dir = args.images_dir
+    else:
+        images_dir = os.path.join(REPO_ROOT, "validation_images", size_normalized, args.approach)
     
     if args.output_dir:
         output_dir = args.output_dir
@@ -667,11 +684,12 @@ Examples:
         # Evaluation reports go to Evaluations directory
         output_dir = os.path.join(STORAGE_BASE, "Evaluations", size_normalized, args.approach)
     
-    # Check weights exist
-    if not os.path.exists(weights_dir):
-        print(f"Error: Weights not found at {weights_dir}")
-        print("Please train the model first or check the path.")
-        return 1
+    # Check weights exist (skip for classifier_guidance as it uses different path)
+    if args.approach != "classifier_guidance":
+        if not os.path.exists(weights_dir):
+            print(f"Error: Weights not found at {weights_dir}")
+            print("Please train the model first or check the path.")
+            return 1
     
     print("=" * 60)
     print("EMOTION EVALUATION")
@@ -738,7 +756,25 @@ Examples:
         print(f"Loaded {len(results)} existing images")
     else:
         # Load generation pipeline
-        pipe, emotion_tokens = load_generation_pipeline(weights_dir, device)
+        if args.approach == "classifier_guidance":
+            # For classifier_guidance, weights are in a different location
+            classifier_weights_dir = os.path.join(STORAGE_BASE, "Weights", "classifier_guidance")
+            # Import from classifier_guidance module
+            import sys
+            cg_inference_path = os.path.join(REPO_ROOT, "approaches", "classifier_guidance", "src")
+            if cg_inference_path not in sys.path:
+                sys.path.insert(0, cg_inference_path)
+            from inference import load_pipeline, load_classifier
+            
+            pipe = load_pipeline(device=device)
+            classifier_path = os.path.join(classifier_weights_dir, "classifier.pt")
+            if not os.path.exists(classifier_path):
+                classifier_path = os.path.join(classifier_weights_dir, "classifier_large.pt")
+            classifier = load_classifier(classifier_path, device=device)
+            emotion_tokens = []
+        else:
+            pipe, emotion_tokens = load_generation_pipeline(weights_dir, device)
+            classifier = None
         
         if existing_count > 0:
             print(f"\n⚠ Found {existing_count}/{expected_total} existing images.")
@@ -746,18 +782,27 @@ Examples:
                 print(f"  Missing {len(missing_images)} images. Regenerating all to ensure consistency.")
         
         # Generate all images
-        results = generate_images(
-            pipe,
-            EVALUATION_PROMPTS,
-            EMOTIONS,
-            images_dir,
-            seed=args.seed,
-            num_inference_steps=args.num_inference_steps,
-            guidance_scale=args.guidance_scale,
-        )
+        generate_kwargs = {
+            "pipe": pipe,
+            "prompts": EVALUATION_PROMPTS,
+            "emotions": EMOTIONS,
+            "output_dir": images_dir,
+            "seed": args.seed,
+            "num_inference_steps": args.num_inference_steps,
+            "guidance_scale": args.guidance_scale,
+            "approach": args.approach,
+        }
+        
+        if args.approach == "classifier_guidance":
+            generate_kwargs["classifier"] = classifier
+            generate_kwargs["classifier_scale"] = args.classifier_scale
+        
+        results = generate_images(**generate_kwargs)
         
         # Free GPU memory
         del pipe
+        if classifier is not None:
+            del classifier
         torch.cuda.empty_cache()
     
     # Load EmotionCLIP for evaluation

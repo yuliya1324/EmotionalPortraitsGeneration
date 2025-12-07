@@ -147,6 +147,17 @@ accelerate launch --mixed_precision="bf16" train_text_to_image_lora.py \
 
 ## 4. Evaluation
 
+```bash
+python scripts/evaluate.py \
+  --approach=approach_name \
+  --dataset-size=10K \
+  --output-dir=path_to_output_dir \
+  --images-dir=path_to_validation_images_dir \
+  --dataset=rafdb \ # emoset or rafdb
+  --task=label2image \ # label2image or multimodal
+  --skip-generation # if you generated images already
+```
+
 ## 4. Inference the model
 
 Got to `inference.ipynb`, load the base model and add fine-tuned parameters, generate pictures.

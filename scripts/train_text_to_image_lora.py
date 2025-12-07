@@ -47,11 +47,17 @@ import diffusers
 from diffusers import AutoencoderKL, DDPMScheduler, DiffusionPipeline, StableDiffusionPipeline, UNet2DConditionModel
 from diffusers.optimization import get_scheduler
 from diffusers.training_utils import cast_training_params, compute_snr
-from diffusers.utils import check_min_version, convert_state_dict_to_diffusers, is_wandb_available
+from diffusers.utils import convert_state_dict_to_diffusers, is_wandb_available
 from diffusers.utils.hub_utils import load_or_create_model_card, populate_model_card
 from diffusers.utils.import_utils import is_xformers_available
 from diffusers.utils.torch_utils import is_compiled_module
 
+# Add parent directory to path for EmotionCLIP import
+import sys
+REPO_ROOT = Path(__file__).parent.parent.absolute()
+sys.path.insert(0, str(REPO_ROOT))
+
+# Import EmotionCLIP components
 from EmotionCLIP.EmotionCLIP import tokenizer as emo_tokenizer
 from EmotionCLIP.EmotionCLIP import model as emo_model
 from EmotionCLIP.EmotionCLIP import preprocess as emo_preprocess
@@ -112,47 +118,6 @@ if is_wandb_available():
 # check_min_version("0.36.0.dev0")
 
 logger = get_logger(__name__, log_level="INFO")
-
-
-def save_model_card(
-    repo_id: str,
-    images: list = None,
-    base_model: str = None,
-    dataset_name: str = None,
-    repo_folder: str = None,
-):
-    img_str = ""
-    if images is not None:
-        for i, image in enumerate(images):
-            image.save(os.path.join(repo_folder, f"image_{i}.png"))
-            img_str += f"![img_{i}](./image_{i}.png)\n"
-
-    model_description = f"""
-# LoRA text2image fine-tuning - {repo_id}
-These are LoRA adaption weights for {base_model}. The weights were fine-tuned on the {dataset_name} dataset. You can find some example images in the following. \n
-{img_str}
-"""
-
-    model_card = load_or_create_model_card(
-        repo_id_or_path=repo_id,
-        from_training=True,
-        license="creativeml-openrail-m",
-        base_model=base_model,
-        model_description=model_description,
-        inference=True,
-    )
-
-    tags = [
-        "stable-diffusion",
-        "stable-diffusion-diffusers",
-        "text-to-image",
-        "diffusers",
-        "diffusers-training",
-        "lora",
-    ]
-    model_card = populate_model_card(model_card, tags=tags)
-
-    model_card.save(os.path.join(repo_folder, "README.md"))
 
 
 def generate_with_emotion(pipe, emotion_embedding, prompt, emotion_id, generator=None, num_inference_steps=50):
@@ -528,8 +493,15 @@ def parse_args():
     parser.add_argument(
         "--emotion_condition",
         action="store_true",
-        help="whether to add embedding layer for emotions",
+        help="Whether to add embedding layer for emotions",
     )
+    parser.add_argument(
+        "--emo_classifier",
+        action="store_true",
+        help="Add a classifier to the training",
+    )
+    parser.add_argument('--dataset', type=str, default="emoset",
+                    help='Type of the dataset used for training (either "emoset" or "rafdb")')
 
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
@@ -620,8 +592,10 @@ def main():
     unet.requires_grad_(False)
     vae.requires_grad_(False)
     text_encoder.requires_grad_(False)
-    emo_model.requires_grad_(False)
-    emo_weight = 0.01
+
+    if args.emo_classifier:
+        emo_model.requires_grad_(False)
+        emo_weight = 0.1
 
     # For mixed precision training we cast all non-trainable weights (vae, non-lora text_encoder and non-lora unet) to half-precision
     # as these weights are only used for inference, keeping weights in full precision is not required.
@@ -642,10 +616,11 @@ def main():
     unet.to(accelerator.device, dtype=weight_dtype)
     vae.to(accelerator.device, dtype=weight_dtype)
     text_encoder.to(accelerator.device, dtype=weight_dtype)
-    emo_model.to(accelerator.device, dtype=weight_dtype)
-    # Update the model's dtype attribute to match the actual dtype for internal operations
-    if hasattr(emo_model, 'dtype'):
-        emo_model.dtype = weight_dtype
+    if args.emo_classifier:
+        emo_model.to(accelerator.device, dtype=weight_dtype)
+        # Update the model's dtype attribute to match the actual dtype for internal operations
+        if hasattr(emo_model, 'dtype'):
+            emo_model.dtype = weight_dtype
     if args.emotion_condition:
         emo_embed.to(accelerator.device, dtype=weight_dtype)
     # Add adapter and make sure the trainable params are in float32.
@@ -730,15 +705,17 @@ def main():
 
     # Preprocessing the datasets.
     # We need to tokenize inputs and targets.
-    with open("/Data/iuliia.korotkova/emoset_captions/train_captions.json") as f:
-        captions = json.load(f)
-    
-    def add_captions(example, idx):
-        caption_data = captions[idx]
-        example["prompt"] = caption_data["caption"]
-        return example
 
-    dataset = dataset.map(add_captions, with_indices=True)
+    if args.dataset == "emoset":
+        with open("/Data/iuliia.korotkova/emoset_captions/train_captions.json") as f:
+            captions = json.load(f)
+        
+        def add_captions(example, idx):
+            caption_data = captions[idx]
+            example["prompt"] = caption_data["caption"]
+            return example
+
+        dataset = dataset.map(add_captions, with_indices=True)
 
     column_names = dataset["train"].column_names
 
@@ -821,8 +798,9 @@ def main():
         examples["pixel_values"] = [train_transforms(image) for image in images]
         examples["input_ids"] = tokenize_captions(examples)
         examples["label"] = torch.tensor(examples["label"], dtype=examples["input_ids"].dtype).unsqueeze(1)
-        examples["emo_labels_classif"] = [consist_json[emotions[emo]] for emo in examples["label"]]
-        examples["emo_labels_classif"] = torch.tensor(examples["emo_labels_classif"], dtype=examples["input_ids"].dtype).unsqueeze(1)
+        if args.emo_classifier:
+            examples["emo_labels_classif"] = [consist_json[emotions[emo]] for emo in examples["label"]]
+            examples["emo_labels_classif"] = torch.tensor(examples["emo_labels_classif"], dtype=examples["input_ids"].dtype).unsqueeze(1)
         return examples
 
     with accelerator.main_process_first():
@@ -835,9 +813,12 @@ def main():
         pixel_values = torch.stack([example["pixel_values"] for example in examples])
         pixel_values = pixel_values.to(memory_format=torch.contiguous_format).float()
         input_ids = torch.stack([example["input_ids"] for example in examples])
-        emotion_ids = torch.stack([example["label"] for example in examples])
-        emo_labels_classif = torch.stack([example["emo_labels_classif"] for example in examples])
-        return {"pixel_values": pixel_values, "input_ids": input_ids, "emotion_ids": emotion_ids, "emo_labels_classif": emo_labels_classif}
+        if args.emo_classifier:
+            emotion_ids = torch.stack([example["label"] for example in examples])
+            emo_labels_classif = torch.stack([example["emo_labels_classif"] for example in examples])
+            return {"pixel_values": pixel_values, "input_ids": input_ids, "emotion_ids": emotion_ids, "emo_labels_classif": emo_labels_classif}
+        else:
+            return {"pixel_values": pixel_values, "input_ids": input_ids}
 
     # DataLoaders creation:
     train_dataloader = torch.utils.data.DataLoader(
@@ -938,19 +919,20 @@ def main():
         disable=not accelerator.is_local_main_process,
     )
 
-    consist_json = {
-        'amusement': 0,
-        'anger': 1,
-        'awe': 2,
-        'contentment': 3,
-        'disgust': 4,
-        'excitement': 5,
-        'fear': 6,
-        'sadness': 7,
-        'neutral': 8
-    }
-    text_list = [f"This picture conveys a sense of {key}" for key in consist_json.keys()]
-    emo_text_input = emo_tokenizer(text_list)
+    if args.emo_classifier:
+        consist_json = {
+            'amusement': 0,
+            'anger': 1,
+            'awe': 2,
+            'contentment': 3,
+            'disgust': 4,
+            'excitement': 5,
+            'fear': 6,
+            'sadness': 7,
+            'neutral': 8
+        }
+        text_list = [f"This picture conveys a sense of {key}" for key in consist_json.keys()]
+        emo_text_input = emo_tokenizer(text_list)
 
     for epoch in range(first_epoch, args.num_train_epochs):
         unet.train()
@@ -999,45 +981,46 @@ def main():
                 # Predict the noise residual and compute loss
                 model_pred = unet(noisy_latents, timesteps, encoder_hidden_states, return_dict=False)[0]
                 
-                # Decode predicted latents to images for emotion classification
-                # Manually compute predicted original sample to avoid scheduler.step() issues with batched timesteps
-                # This preserves gradients for backpropagation
-                # Formula: pred_original_sample = (sample - sqrt(1 - alpha_prod_t) * model_output) / sqrt(alpha_prod_t)
-                alpha_prod_t = noise_scheduler.alphas_cumprod[timesteps]
-                # Reshape for broadcasting: [batch_size] -> [batch_size, 1, 1, 1]
-                alpha_prod_t = alpha_prod_t.view(-1, 1, 1, 1)
-                sqrt_alpha_prod_t = torch.sqrt(alpha_prod_t)
-                sqrt_one_minus_alpha_prod_t = torch.sqrt(1.0 - alpha_prod_t)
+                if args.emo_classifier:
+                    # Decode predicted latents to images for emotion classification
+                    # Manually compute predicted original sample to avoid scheduler.step() issues with batched timesteps
+                    # This preserves gradients for backpropagation
+                    # Formula: pred_original_sample = (sample - sqrt(1 - alpha_prod_t) * model_output) / sqrt(alpha_prod_t)
+                    alpha_prod_t = noise_scheduler.alphas_cumprod[timesteps]
+                    # Reshape for broadcasting: [batch_size] -> [batch_size, 1, 1, 1]
+                    alpha_prod_t = alpha_prod_t.view(-1, 1, 1, 1)
+                    sqrt_alpha_prod_t = torch.sqrt(alpha_prod_t)
+                    sqrt_one_minus_alpha_prod_t = torch.sqrt(1.0 - alpha_prod_t)
+                    
+                    # Compute predicted original sample
+                    pred_latents = (noisy_latents - sqrt_one_minus_alpha_prod_t * model_pred) / sqrt_alpha_prod_t
+                    
+                    # Decode latents to images using VAE
+                    # Note: VAE is frozen but we need gradients to flow through for backprop
+                    # Scale down latents by scaling factor before decoding
+                    pred_latents_scaled = pred_latents / vae.config.scaling_factor
+                    pred_images = vae.decode(pred_latents_scaled.to(dtype=weight_dtype), return_dict=False)[0]
+                    
+                    # Convert from [-1, 1] to [0, 1] range for preprocessing
+                    pred_images = (pred_images / 2.0 + 0.5).clamp(0, 1)
                 
-                # Compute predicted original sample
-                pred_latents = (noisy_latents - sqrt_one_minus_alpha_prod_t * model_pred) / sqrt_alpha_prod_t
-                
-                # Decode latents to images using VAE
-                # Note: VAE is frozen but we need gradients to flow through for backprop
-                # Scale down latents by scaling factor before decoding
-                pred_latents_scaled = pred_latents / vae.config.scaling_factor
-                pred_images = vae.decode(pred_latents_scaled.to(dtype=weight_dtype), return_dict=False)[0]
-                
-                # Convert from [-1, 1] to [0, 1] range for preprocessing
-                pred_images = (pred_images / 2.0 + 0.5).clamp(0, 1)
-                
-                # Preprocess images for emotion classifier using tensor-based preprocessing
-                # This preserves gradients for backpropagation
-                img_input = preprocess_emotion_tensor(pred_images)
-                
-                # Get emotion classification logits
-                # Note: Emotion model is frozen but we need gradients to flow through
-                # Get the actual dtype of the model (may differ from emo_model.dtype if model was moved with weight_dtype)
-                emo_model_dtype = next(emo_model.parameters()).dtype
-                logits_per_image, _ = emo_model(
-                    img_input.to(device=emo_model.device, dtype=emo_model_dtype), 
-                    emo_text_input.to(device=emo_model.device)
-                )
+                    # Preprocess images for emotion classifier using tensor-based preprocessing
+                    # This preserves gradients for backpropagation
+                    img_input = preprocess_emotion_tensor(pred_images)
+                    
+                    # Get emotion classification logits
+                    # Note: Emotion model is frozen but we need gradients to flow through
+                    # Get the actual dtype of the model (may differ from emo_model.dtype if model was moved with weight_dtype)
+                    emo_model_dtype = next(emo_model.parameters()).dtype
+                    logits_per_image, _ = emo_model(
+                        img_input.to(device=emo_model.device, dtype=emo_model_dtype), 
+                        emo_text_input.to(device=emo_model.device)
+                    )
 
-                # Compute emotion classification loss
-                # emo_labels_classif is shape [batch_size, 1], need to squeeze to [batch_size]
-                emo_labels = batch["emo_labels_classif"].squeeze(1).to(device=emo_model.device)
-                loss_emo = F.cross_entropy(logits_per_image, emo_labels)
+                    # Compute emotion classification loss
+                    # emo_labels_classif is shape [batch_size, 1], need to squeeze to [batch_size]
+                    emo_labels = batch["emo_labels_classif"].squeeze(1).to(device=emo_model.device)
+                    loss_emo = F.cross_entropy(logits_per_image, emo_labels)
 
                 if args.snr_gamma is None:
                     loss_diff = F.mse_loss(model_pred.float(), target.float(), reduction="mean")
@@ -1058,7 +1041,10 @@ def main():
                     loss_diff = loss_diff.mean(dim=list(range(1, len(loss_diff.shape)))) * mse_loss_weights
                     loss_diff = loss_diff.mean()
 
-                loss = loss_diff + emo_weight * loss_emo
+                if args.emo_classifier:
+                    loss = loss_diff + emo_weight * loss_emo
+                else:
+                    loss = loss_diff
 
                 # Gather the losses across all processes for logging (if we use distributed training).
                 avg_loss = accelerator.gather(loss.repeat(args.train_batch_size)).mean()
@@ -1178,21 +1164,6 @@ def main():
                 images = log_validation(pipeline, args, accelerator, epoch, emo_embed=emo_embed, is_final_validation=True)
             else:
                 images = log_validation(pipeline, args, accelerator, epoch, is_final_validation=True)
-
-        if args.push_to_hub:
-            save_model_card(
-                repo_id,
-                images=images,
-                base_model=args.pretrained_model_name_or_path,
-                dataset_name=args.dataset_name,
-                repo_folder=args.output_dir,
-            )
-            upload_folder(
-                repo_id=repo_id,
-                folder_path=args.output_dir,
-                commit_message="End of training",
-                ignore_patterns=["step_*", "epoch_*"],
-            )
 
     accelerator.end_training()
 

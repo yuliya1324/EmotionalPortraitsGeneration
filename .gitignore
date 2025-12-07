@@ -75,3 +75,5 @@ temp/
 Thumbs.db
 Desktop.ini
 wandb/
+.vscode/
+EmotionCLIP/

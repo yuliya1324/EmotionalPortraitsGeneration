@@ -127,18 +127,15 @@ def load_emotionclip_model(device):
     # Setup EmotionCLIP if needed
     setup_emotionclip()
     
-    # Add EmotionCLIP to path
-    sys.path.insert(0, EMOTIONCLIP_PATH)
-    
-    # Change to EmotionCLIP directory temporarily (needed for relative path in EmotionCLIP.py)
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(EMOTIONCLIP_PATH)
-        # Import EmotionCLIP components
-        from EmotionCLIP import model, preprocess, tokenizer
-    finally:
-        # Restore original working directory
-        os.chdir(original_cwd)
+    # Dynamically load EmotionCLIP from its script to avoid import path issues
+    import importlib.util
+    emotionclip_file = os.path.join(EMOTIONCLIP_PATH, "EmotionCLIP.py")
+    spec = importlib.util.spec_from_file_location("emotionclip", emotionclip_file)
+    emotionclip = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(emotionclip)
+    model = emotionclip.model
+    preprocess = emotionclip.preprocess
+    tokenizer = emotionclip.tokenizer
     
     print(f"Loaded EmotionCLIP model (device: {model.device}, dtype: {model.dtype})")
     
@@ -215,7 +212,7 @@ def generate_images(
     if task == "multimodal":
         emotion_embedding = nn.Embedding(8, pipe.text_encoder.config.hidden_size)
         emotion_embedding.load_state_dict(
-            os.path.join(STORAGE_BASE, approach, "emotion_embedding.pth")
+            torch.load(os.path.join(STORAGE_BASE, approach, "emotion_embedding.pth"))
             )
         emotion_embedding.eval()
         emotion_embedding = emotion_embedding.to(device)

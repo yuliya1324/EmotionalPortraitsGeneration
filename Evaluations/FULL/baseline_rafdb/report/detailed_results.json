@@ -1,0 +1,1831 @@
+{
+  "results": [
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_00.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 0,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": true,
+      "target_strength": 0.8501086831092834,
+      "all_probabilities": [
+        [
+          0.8501086831092834,
+          0.04878801107406616,
+          0.03567007929086685,
+          0.0001224014995386824,
+          0.04141855984926224,
+          0.011433637700974941,
+          0.012458697892725468
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_01.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 1,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.23655535280704498,
+      "all_probabilities": [
+        [
+          0.23655535280704498,
+          0.09196154773235321,
+          0.04283030703663826,
+          0.00015945156337693334,
+          0.621147632598877,
+          0.004857153631746769,
+          0.0024885847233235836
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_02.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 2,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": true,
+      "target_strength": 0.40746691823005676,
+      "all_probabilities": [
+        [
+          0.40746691823005676,
+          0.1041281595826149,
+          0.007830742746591568,
+          0.0035407214891165495,
+          0.33013850450515747,
+          0.0013608874287456274,
+          0.14553409814834595
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_03.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 3,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.02804701216518879,
+      "all_probabilities": [
+        [
+          0.02804701216518879,
+          0.4601224362850189,
+          0.027134494855999947,
+          0.00277244602330029,
+          0.4713171422481537,
+          0.0012223059311509132,
+          0.00938418973237276
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_04.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 4,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.1420426070690155,
+      "all_probabilities": [
+        [
+          0.1420426070690155,
+          0.0024451343342661858,
+          0.33258041739463806,
+          0.00013731763465330005,
+          0.5130451321601868,
+          0.0031209802255034447,
+          0.006628339644521475
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_05.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 5,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.2250858098268509,
+      "all_probabilities": [
+        [
+          0.2250858098268509,
+          0.3283159136772156,
+          0.025225182995200157,
+          0.0044723814353346825,
+          0.38487130403518677,
+          0.004483082797378302,
+          0.027546333149075508
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_06.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 6,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": true,
+      "target_strength": 0.9665334820747375,
+      "all_probabilities": [
+        [
+          0.9665334820747375,
+          0.010026495903730392,
+          0.009776333346962929,
+          0.00045754332677461207,
+          0.011833601631224155,
+          0.0010268526384606957,
+          0.00034564928500913084
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_07.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 7,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": true,
+      "target_strength": 0.7312146425247192,
+      "all_probabilities": [
+        [
+          0.7312146425247192,
+          0.06898266822099686,
+          0.10836552828550339,
+          0.000384466111427173,
+          0.06649133563041687,
+          0.02379978634417057,
+          0.0007615424692630768
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_08.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 8,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "fear",
+      "predicted_idx": 2,
+      "is_correct": false,
+      "target_strength": 0.091800756752491,
+      "all_probabilities": [
+        [
+          0.091800756752491,
+          0.02364116534590721,
+          0.7787155508995056,
+          0.00010933443263638765,
+          0.03919539973139763,
+          0.06277874857187271,
+          0.0037590612191706896
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt00_anger_09.png",
+      "prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "emotion": "anger",
+      "emotion_idx": 0,
+      "prompt_idx": 0,
+      "img_idx": 9,
+      "full_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": true,
+      "target_strength": 0.7812948226928711,
+      "all_probabilities": [
+        [
+          0.7812948226928711,
+          0.1118776947259903,
+          0.009552565403282642,
+          0.0010508664418011904,
+          0.08685500919818878,
+          0.0009045407641679049,
+          0.008464455604553223
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_00.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 0,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.0007634754292666912,
+      "all_probabilities": [
+        [
+          0.016522694379091263,
+          0.0007634754292666912,
+          0.44879454374313354,
+          0.00016247393796220422,
+          0.529044508934021,
+          0.00358382030390203,
+          0.0011285286163911223
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_01.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 1,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.03865400329232216,
+      "all_probabilities": [
+        [
+          0.3354794681072235,
+          0.03865400329232216,
+          0.10588142275810242,
+          0.0011907524894922972,
+          0.4824332892894745,
+          0.03014378622174263,
+          0.006217280402779579
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_02.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 2,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.0005446112481877208,
+      "all_probabilities": [
+        [
+          0.012955393642187119,
+          0.0005446112481877208,
+          0.0022303746081888676,
+          0.00032939776428975165,
+          0.9081751704216003,
+          0.00011518155224621296,
+          0.07564985752105713
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_03.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 3,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": false,
+      "target_strength": 0.012062505818903446,
+      "all_probabilities": [
+        [
+          0.48960837721824646,
+          0.012062505818903446,
+          0.1253526359796524,
+          0.002051455667242408,
+          0.19422641396522522,
+          0.005313492380082607,
+          0.17138518393039703
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_04.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 4,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.0015333639457821846,
+      "all_probabilities": [
+        [
+          0.0271309707313776,
+          0.0015333639457821846,
+          0.03216016665101051,
+          0.0009154152940027416,
+          0.8167423605918884,
+          0.0015802120324224234,
+          0.11993752419948578
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_05.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 5,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.02892749197781086,
+      "all_probabilities": [
+        [
+          0.041065704077482224,
+          0.02892749197781086,
+          0.013816876336932182,
+          4.116975105716847e-05,
+          0.9059545397758484,
+          0.0013756986008957028,
+          0.008818584494292736
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_06.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 6,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": false,
+      "target_strength": 0.013959040865302086,
+      "all_probabilities": [
+        [
+          0.7264098525047302,
+          0.013959040865302086,
+          0.0624454990029335,
+          0.0003063740732613951,
+          0.18793614208698273,
+          0.0017758030444383621,
+          0.007167196366935968
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_07.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 7,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.00025609845761209726,
+      "all_probabilities": [
+        [
+          0.004337796010077,
+          0.00025609845761209726,
+          0.02253456972539425,
+          0.0008260914473794401,
+          0.43396759033203125,
+          0.001166436355561018,
+          0.5369113683700562
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_08.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 8,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.004412129987031221,
+      "all_probabilities": [
+        [
+          0.028066763654351234,
+          0.004412129987031221,
+          0.008500698953866959,
+          0.0006499465671367943,
+          0.5560573935508728,
+          0.002108682645484805,
+          0.40020444989204407
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt01_disgust_09.png",
+      "prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "emotion": "disgust",
+      "emotion_idx": 1,
+      "prompt_idx": 1,
+      "img_idx": 9,
+      "full_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": false,
+      "target_strength": 0.0018879636190831661,
+      "all_probabilities": [
+        [
+          0.3773384094238281,
+          0.0018879636190831661,
+          0.29856517910957336,
+          0.00010026970267063007,
+          0.3116466999053955,
+          0.0019940107595175505,
+          0.008467388339340687
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_00.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 0,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.05710414797067642,
+      "all_probabilities": [
+        [
+          0.1242944672703743,
+          0.0031879437156021595,
+          0.05710414797067642,
+          0.008919373154640198,
+          0.2784333825111389,
+          0.004129063803702593,
+          0.5239315629005432
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_01.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 1,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.023326115682721138,
+      "all_probabilities": [
+        [
+          0.040242116898298264,
+          0.001988679636269808,
+          0.023326115682721138,
+          0.0011532272910699248,
+          0.282565176486969,
+          0.004689915105700493,
+          0.6460347771644592
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_02.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 2,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.003611457534134388,
+      "all_probabilities": [
+        [
+          0.0023638030979782343,
+          5.3894269512966275e-05,
+          0.003611457534134388,
+          0.02877870388329029,
+          0.0338619202375412,
+          0.004456699825823307,
+          0.9268734455108643
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_03.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 3,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.1840147227048874,
+      "all_probabilities": [
+        [
+          0.10986702144145966,
+          0.012136504054069519,
+          0.1840147227048874,
+          0.00043261010432615876,
+          0.2449544221162796,
+          0.1016094908118248,
+          0.34698519110679626
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_04.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 4,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": false,
+      "target_strength": 0.27056851983070374,
+      "all_probabilities": [
+        [
+          0.35801830887794495,
+          0.045944470912218094,
+          0.27056851983070374,
+          0.002822109265252948,
+          0.09144933521747589,
+          0.22578361630439758,
+          0.005413643550127745
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_05.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 5,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.08418312668800354,
+      "all_probabilities": [
+        [
+          0.23644894361495972,
+          0.007529010996222496,
+          0.08418312668800354,
+          0.0012798616662621498,
+          0.44971850514411926,
+          0.001565891201607883,
+          0.21927469968795776
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_06.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 6,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "fear",
+      "predicted_idx": 2,
+      "is_correct": true,
+      "target_strength": 0.47876694798469543,
+      "all_probabilities": [
+        [
+          0.05867515131831169,
+          0.026659702882170677,
+          0.47876694798469543,
+          0.0013813559198752046,
+          0.38113394379615784,
+          0.01179585326462984,
+          0.041586995124816895
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_07.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 7,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": false,
+      "target_strength": 0.038811493664979935,
+      "all_probabilities": [
+        [
+          0.5051892399787903,
+          0.0030383660923689604,
+          0.038811493664979935,
+          0.0013328858185559511,
+          0.4062590003013611,
+          0.0009877083357423544,
+          0.04438133165240288
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_08.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 8,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.19632571935653687,
+      "all_probabilities": [
+        [
+          0.10544633865356445,
+          0.08984772115945816,
+          0.19632571935653687,
+          0.00734651368111372,
+          0.5513830184936523,
+          0.006341415457427502,
+          0.04330925643444061
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt02_fear_09.png",
+      "prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "emotion": "fear",
+      "emotion_idx": 2,
+      "prompt_idx": 2,
+      "img_idx": 9,
+      "full_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.3851945400238037,
+      "all_probabilities": [
+        [
+          0.050399620085954666,
+          0.004543905146420002,
+          0.3851945400238037,
+          0.0012939122971147299,
+          0.5319808721542358,
+          0.012622516602277756,
+          0.01396461483091116
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_00.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 0,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.19585101306438446,
+      "all_probabilities": [
+        [
+          0.001168975722976029,
+          0.00017901102546602488,
+          0.0016362160677090287,
+          0.19585101306438446,
+          0.008226708509027958,
+          0.0004904132802039385,
+          0.7924476861953735
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_01.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 1,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": true,
+      "target_strength": 0.9965828061103821,
+      "all_probabilities": [
+        [
+          0.0003738883533515036,
+          0.00010585122072370723,
+          5.664331911248155e-05,
+          0.9965828061103821,
+          0.00022877406445331872,
+          0.0010555379558354616,
+          0.0015964730409905314
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_02.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 2,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": true,
+      "target_strength": 0.9874193072319031,
+      "all_probabilities": [
+        [
+          0.0004309788637328893,
+          0.00025464114150963724,
+          0.0001934639731189236,
+          0.9874193072319031,
+          0.0014569401973858476,
+          0.0005384484538808465,
+          0.00970616564154625
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_03.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 3,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": true,
+      "target_strength": 0.994046688079834,
+      "all_probabilities": [
+        [
+          8.458081720164046e-05,
+          0.00010498814663151279,
+          3.413185550016351e-05,
+          0.994046688079834,
+          0.00010413823474664241,
+          0.0010344743495807052,
+          0.004590970929712057
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_04.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 4,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": true,
+      "target_strength": 0.9801743030548096,
+      "all_probabilities": [
+        [
+          0.0002567388874012977,
+          8.508765313308686e-05,
+          0.00021905888570472598,
+          0.9801743030548096,
+          0.0009417222463525832,
+          0.0039749182760715485,
+          0.014348173514008522
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_05.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 5,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.23740042746067047,
+      "all_probabilities": [
+        [
+          0.005506026558578014,
+          0.00015467280172742903,
+          0.0015796821098774672,
+          0.23740042746067047,
+          0.0411611944437027,
+          0.0005124940071254969,
+          0.7136855721473694
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_06.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 6,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": true,
+      "target_strength": 0.9825108647346497,
+      "all_probabilities": [
+        [
+          0.00039356914930976927,
+          4.521444134297781e-05,
+          9.769383177626878e-05,
+          0.9825108647346497,
+          0.00023073739430401474,
+          0.0014848725404590368,
+          0.015237065963447094
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_07.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 7,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": true,
+      "target_strength": 0.9952536821365356,
+      "all_probabilities": [
+        [
+          8.855455962475389e-05,
+          0.00010522032243898138,
+          0.00020802475046366453,
+          0.9952536821365356,
+          0.00012574513675644994,
+          0.001897242502309382,
+          0.0023215538822114468
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_08.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 8,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": true,
+      "target_strength": 0.9183428287506104,
+      "all_probabilities": [
+        [
+          0.001285744016058743,
+          0.0002939770056400448,
+          0.0022216159850358963,
+          0.9183428287506104,
+          0.004822620656341314,
+          0.003912414889782667,
+          0.069120854139328
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt03_happy_09.png",
+      "prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "emotion": "happy",
+      "emotion_idx": 3,
+      "prompt_idx": 3,
+      "img_idx": 9,
+      "full_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.0027295502368360758,
+      "all_probabilities": [
+        [
+          0.0019989307038486004,
+          3.9800368540454656e-05,
+          0.003484546672552824,
+          0.0027295502368360758,
+          0.008381616324186325,
+          0.00020584584854077548,
+          0.9831597208976746
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_00.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 0,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.043205082416534424,
+      "all_probabilities": [
+        [
+          0.005322868935763836,
+          0.0015280140796676278,
+          0.05220184475183487,
+          0.007804391905665398,
+          0.043205082416534424,
+          0.0032083315309137106,
+          0.8867295384407043
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_01.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 1,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.09953340888023376,
+      "all_probabilities": [
+        [
+          0.04765292629599571,
+          0.0036028902977705,
+          0.010142411105334759,
+          0.001873041270300746,
+          0.09953340888023376,
+          0.0009502010070718825,
+          0.8362451791763306
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_02.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 2,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.06880883127450943,
+      "all_probabilities": [
+        [
+          0.02029155194759369,
+          0.00037399501889012754,
+          0.023597482591867447,
+          0.001090212375856936,
+          0.06880883127450943,
+          0.004182595759630203,
+          0.8816553950309753
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_03.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 3,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": true,
+      "target_strength": 0.6507718563079834,
+      "all_probabilities": [
+        [
+          0.0361662320792675,
+          0.0011032044421881437,
+          0.03581773862242699,
+          0.0002963395672850311,
+          0.6507718563079834,
+          0.0005494918441399932,
+          0.2752950191497803
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_04.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 4,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "disgust",
+      "predicted_idx": 1,
+      "is_correct": false,
+      "target_strength": 0.3470609486103058,
+      "all_probabilities": [
+        [
+          0.21457962691783905,
+          0.38937580585479736,
+          0.04313420131802559,
+          0.00016003534256014973,
+          0.3470609486103058,
+          0.0034213184844702482,
+          0.0022681134287267923
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_05.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 5,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.040908969938755035,
+      "all_probabilities": [
+        [
+          0.15718190371990204,
+          0.002537490101531148,
+          0.019887788221240044,
+          0.008756248280405998,
+          0.040908969938755035,
+          0.0024548922665417194,
+          0.7682726979255676
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_06.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 6,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.38383522629737854,
+      "all_probabilities": [
+        [
+          0.05955127626657486,
+          0.000652677787002176,
+          0.014156732708215714,
+          0.001373756560496986,
+          0.38383522629737854,
+          0.0004721583391074091,
+          0.5399581789970398
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_07.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 7,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": false,
+      "target_strength": 0.17595314979553223,
+      "all_probabilities": [
+        [
+          0.6937333941459656,
+          0.07102411985397339,
+          0.03388955071568489,
+          0.0004390600952319801,
+          0.17595314979553223,
+          0.0027453636284917593,
+          0.022215329110622406
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_08.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 8,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "anger",
+      "predicted_idx": 0,
+      "is_correct": false,
+      "target_strength": 0.030972005799412727,
+      "all_probabilities": [
+        [
+          0.37714630365371704,
+          0.01322867814451456,
+          0.14933659136295319,
+          0.027402492240071297,
+          0.030972005799412727,
+          0.3418385088443756,
+          0.060075465589761734
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt04_sad_09.png",
+      "prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "emotion": "sad",
+      "emotion_idx": 4,
+      "prompt_idx": 4,
+      "img_idx": 9,
+      "full_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.456510990858078,
+      "all_probabilities": [
+        [
+          0.007621757220476866,
+          0.002791992388665676,
+          0.02966897189617157,
+          0.006022307090461254,
+          0.456510990858078,
+          0.01051266584545374,
+          0.4868713319301605
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_00.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 0,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "fear",
+      "predicted_idx": 2,
+      "is_correct": false,
+      "target_strength": 0.046633489429950714,
+      "all_probabilities": [
+        [
+          0.08107487112283707,
+          0.010133796371519566,
+          0.41853928565979004,
+          0.18258094787597656,
+          0.07172677665948868,
+          0.046633489429950714,
+          0.18931087851524353
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_01.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 1,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.001566894818097353,
+      "all_probabilities": [
+        [
+          0.10448619723320007,
+          0.009626584127545357,
+          0.0346367284655571,
+          0.002093262504786253,
+          0.7268616557121277,
+          0.001566894818097353,
+          0.1207287535071373
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_02.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 2,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.0005010711029171944,
+      "all_probabilities": [
+        [
+          0.020702436566352844,
+          0.0006073571857996285,
+          0.0009045026381500065,
+          0.11294078826904297,
+          0.03285747393965721,
+          0.0005010711029171944,
+          0.8314864039421082
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_03.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 3,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.003711487865075469,
+      "all_probabilities": [
+        [
+          0.020830081775784492,
+          0.00342730013653636,
+          0.05377643555402756,
+          0.03153395280241966,
+          0.21923372149467468,
+          0.003711487865075469,
+          0.6674870252609253
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_04.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 4,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.06248599663376808,
+      "all_probabilities": [
+        [
+          0.05486634746193886,
+          0.0036528443451970816,
+          0.01979541778564453,
+          0.15433640778064728,
+          0.07143648713827133,
+          0.06248599663376808,
+          0.6334264874458313
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_05.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 5,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": false,
+      "target_strength": 0.003410864854231477,
+      "all_probabilities": [
+        [
+          0.00021818740060552955,
+          9.859343117568642e-05,
+          0.0001738540013320744,
+          0.9913302659988403,
+          0.00035503064282238483,
+          0.003410864854231477,
+          0.004413228947669268
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_06.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 6,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": false,
+      "target_strength": 0.0049495394341647625,
+      "all_probabilities": [
+        [
+          0.0017136436654254794,
+          0.00028249796014279127,
+          0.0034455284476280212,
+          0.8197118639945984,
+          0.006644000764936209,
+          0.0049495394341647625,
+          0.16325287520885468
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_07.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 7,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": false,
+      "target_strength": 0.02809525467455387,
+      "all_probabilities": [
+        [
+          0.1809520721435547,
+          0.00794041808694601,
+          0.16654843091964722,
+          0.027341002598404884,
+          0.11966729909181595,
+          0.02809525467455387,
+          0.4694554805755615
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_08.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 8,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": false,
+      "target_strength": 0.009972832165658474,
+      "all_probabilities": [
+        [
+          0.0010533862514421344,
+          0.00010843700147233903,
+          0.0004316087579354644,
+          0.9157387018203735,
+          0.0011382708325982094,
+          0.009972832165658474,
+          0.07155680656433105
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt05_surprise_09.png",
+      "prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "emotion": "surprise",
+      "emotion_idx": 5,
+      "prompt_idx": 5,
+      "img_idx": 9,
+      "full_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+      "predicted_emotion": "sad",
+      "predicted_idx": 4,
+      "is_correct": false,
+      "target_strength": 0.19721436500549316,
+      "all_probabilities": [
+        [
+          0.06161365658044815,
+          0.011065006256103516,
+          0.19773945212364197,
+          0.020943723618984222,
+          0.4190756380558014,
+          0.19721436500549316,
+          0.0923481285572052
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_00.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 0,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "happy",
+      "predicted_idx": 3,
+      "is_correct": false,
+      "target_strength": 0.45666196942329407,
+      "all_probabilities": [
+        [
+          0.010677642188966274,
+          0.002079328056424856,
+          0.008768645115196705,
+          0.47202709317207336,
+          0.006251872982829809,
+          0.043533410876989365,
+          0.45666196942329407
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_01.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 1,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.9737145304679871,
+      "all_probabilities": [
+        [
+          0.002155634807422757,
+          0.000467002420919016,
+          0.002211971441283822,
+          0.009580910205841064,
+          0.010244833305478096,
+          0.001625126344151795,
+          0.9737145304679871
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_02.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 2,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.8498204350471497,
+      "all_probabilities": [
+        [
+          0.05922889709472656,
+          0.0020895672496408224,
+          0.0322815403342247,
+          0.0021557696163654327,
+          0.04886336624622345,
+          0.005560392048209906,
+          0.8498204350471497
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_03.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 3,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.6360458731651306,
+      "all_probabilities": [
+        [
+          0.024723226204514503,
+          0.00201842631213367,
+          0.043171972036361694,
+          0.049002524465322495,
+          0.19274669885635376,
+          0.05229123309254646,
+          0.6360458731651306
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_04.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 4,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.7487390637397766,
+      "all_probabilities": [
+        [
+          0.02435963787138462,
+          0.0008122044964693487,
+          0.02810797281563282,
+          0.0010239413240924478,
+          0.19360503554344177,
+          0.0033521433360874653,
+          0.7487390637397766
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_05.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 5,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.971899688243866,
+      "all_probabilities": [
+        [
+          0.0016536936163902283,
+          0.000150979874888435,
+          0.0028063368517905474,
+          0.017608145251870155,
+          0.005638019647449255,
+          0.00024308162392117083,
+          0.971899688243866
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_06.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 6,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.9843688011169434,
+      "all_probabilities": [
+        [
+          0.002527351025491953,
+          9.008659981191158e-05,
+          0.0026802020147442818,
+          0.004586801398545504,
+          0.005504531320184469,
+          0.00024226868117693812,
+          0.9843688011169434
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_07.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 7,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.9761812686920166,
+      "all_probabilities": [
+        [
+          0.002659583231434226,
+          0.0003064593474846333,
+          0.002627616748213768,
+          0.014446690678596497,
+          0.0033008544705808163,
+          0.000477422378025949,
+          0.9761812686920166
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_08.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 8,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.9841995239257812,
+      "all_probabilities": [
+        [
+          0.0008716900483705103,
+          9.875474643195048e-05,
+          0.0012746285647153854,
+          0.00807759165763855,
+          0.005010244436562061,
+          0.0004676329263020307,
+          0.9841995239257812
+        ]
+      ]
+    },
+    {
+      "image_path": "/users/eleves-a/2025/yash.bhardwaj/EmotionalPortraitsGeneration/validation_images/FULL/baseline_rafdb/prompt06_neutral_09.png",
+      "prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "emotion": "neutral",
+      "emotion_idx": 6,
+      "prompt_idx": 6,
+      "img_idx": 9,
+      "full_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "natural_prompt": "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera",
+      "predicted_emotion": "neutral",
+      "predicted_idx": 6,
+      "is_correct": true,
+      "target_strength": 0.9711050987243652,
+      "all_probabilities": [
+        [
+          0.0055303568951785564,
+          0.00014247866056393832,
+          0.0029170990455895662,
+          0.0034614477772265673,
+          0.01659024879336357,
+          0.0002532340295147151,
+          0.9711050987243652
+        ]
+      ]
+    }
+  ],
+  "metrics": {
+    "overall": {
+      "accuracy": 0.32857142857142857,
+      "avg_strength": 0.35406010789863235,
+      "correct_predictions": 23,
+      "total_samples": 70
+    },
+    "per_emotion": {
+      "anger": {
+        "accuracy": 0.5,
+        "avg_strength": 0.4460150087252259,
+        "std_strength": 0.3338735959357348,
+        "correct": 5,
+        "total": 10
+      },
+      "disgust": {
+        "accuracy": 0.0,
+        "avg_strength": 0.010300068464130164,
+        "std_strength": 0.012793373725113069,
+        "correct": 0,
+        "total": 10
+      },
+      "fear": {
+        "accuracy": 0.1,
+        "avg_strength": 0.17219067914411426,
+        "std_strength": 0.1546350604990051,
+        "correct": 1,
+        "total": 10
+      },
+      "happy": {
+        "accuracy": 0.7,
+        "avg_strength": 0.7290311470860615,
+        "std_strength": 0.3867965357822431,
+        "correct": 7,
+        "total": 10
+      },
+      "sad": {
+        "accuracy": 0.1,
+        "avg_strength": 0.22975604701787233,
+        "std_strength": 0.20540428892795334,
+        "correct": 1,
+        "total": 10
+      },
+      "surprise": {
+        "accuracy": 0.0,
+        "avg_strength": 0.03585417959839106,
+        "std_strength": 0.0574968520526142,
+        "correct": 0,
+        "total": 10
+      },
+      "neutral": {
+        "accuracy": 0.9,
+        "avg_strength": 0.855273625254631,
+        "std_strength": 0.17529527557649177,
+        "correct": 9,
+        "total": 10
+      }
+    }
+  },
+  "emotions": [
+    "anger",
+    "disgust",
+    "fear",
+    "happy",
+    "sad",
+    "surprise",
+    "neutral"
+  ],
+  "prompts": [
+    "a photorealistic human portrait depicting anger, head and shoulders, looking at camera",
+    "a photorealistic human portrait depicting disgust, head and shoulders, looking at camera",
+    "a photorealistic human portrait depicting fear, head and shoulders, looking at camera",
+    "a photorealistic human portrait depicting happy, head and shoulders, looking at camera",
+    "a photorealistic human portrait depicting sad, head and shoulders, looking at camera",
+    "a photorealistic human portrait depicting surprise, head and shoulders, looking at camera",
+    "a photorealistic human portrait depicting neutral, head and shoulders, looking at camera"
+  ]
+}

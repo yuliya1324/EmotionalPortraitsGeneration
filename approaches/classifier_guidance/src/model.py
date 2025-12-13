@@ -111,18 +111,18 @@ class EmotionLatentClassifier(nn.Module):
         timesteps = timesteps.to(dtype=torch.float32)
         
         # Convolutional feature extraction
-        x = F.silu(self.bn1(self.conv1(x)))  # [B, 64, 64, 64]
-        x = F.silu(self.bn2(self.conv2(x)))  # [B, 128, 32, 32]
-        x = F.silu(self.bn3(self.conv3(x)))  # [B, 256, 16, 16]
-        x = F.silu(self.bn4(self.conv4(x)))  # [B, 512, 8, 8]
+        x = F.silu(self.bn1(self.conv1(x)))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = F.silu(self.bn3(self.conv3(x)))
+        x = F.silu(self.bn4(self.conv4(x)))
         
         # Time embedding and injection
-        time_emb = self.time_proj(self.time_embed(timesteps))  # [B, 512]
-        time_emb = time_emb[:, :, None, None].expand_as(x)  # [B, 512, 8, 8]
+        time_emb = self.time_proj(self.time_embed(timesteps))
+        time_emb = time_emb[:, :, None, None].expand_as(x)
         x = x + time_emb  # Add time conditioning
         
         # Global pooling and classification
-        x = self.global_pool(x).flatten(1)  # [B, 512]
+        x = self.global_pool(x).flatten(1)
         logits = self.classifier(x)  # [B, num_emotions]
         
         return logits

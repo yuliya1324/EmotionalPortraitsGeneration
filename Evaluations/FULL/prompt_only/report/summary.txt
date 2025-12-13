@@ -1,0 +1,46 @@
+============================================================
+EMOTION EVALUATION REPORT
+============================================================
+
+OVERALL METRICS:
+----------------------------------------
+  Emotion Accuracy: 23.75%
+  Emotion Strength: 0.2462
+  Correct Predictions: 19/80
+
+PER-EMOTION METRICS:
+----------------------------------------
+Emotion        Accuracy   Strength    Correct
+----------------------------------------
+amusement         10.0%     0.1410       1/10
+anger              0.0%     0.0000       0/10
+awe               60.0%     0.6213       6/10
+contentment       50.0%     0.4977       5/10
+disgust            0.0%     0.0000       0/10
+excitement         0.0%     0.0069       0/10
+fear              30.0%     0.3007       3/10
+sadness           40.0%     0.4016       4/10
+
+PROMPTS USED:
+----------------------------------------
+   1. A park
+   2. A beach
+   3. A forest
+   4. A city street
+   5. A mountain
+   6. A room
+   7. A garden
+   8. A bridge
+   9. A lake
+  10. A field
+
+EMOTIONS:
+----------------------------------------
+  - amusement
+  - anger
+  - awe
+  - contentment
+  - disgust
+  - excitement
+  - fear
+  - sadness

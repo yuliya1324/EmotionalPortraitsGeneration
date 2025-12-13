@@ -33,8 +33,9 @@ sys.path.insert(0, str(REPO_ROOT / "approaches" / "classifier_guidance" / "src")
 from model import EmotionLatentClassifier
 
 # Set HuggingFace cache directory and storage base
-STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
-CACHE_DIR = os.path.join(STORAGE_BASE, "cache")
+# Use environment variable or default to repository root
+STORAGE_BASE = os.getenv("EMOTIONAL_PORTRAITS_BASE", str(REPO_ROOT))
+CACHE_DIR = os.getenv("HF_CACHE_DIR", os.path.join(STORAGE_BASE, "cache"))
 os.environ["HF_HOME"] = os.path.join(CACHE_DIR, "huggingface")
 os.environ["HF_DATASETS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "datasets")
 os.environ["TRANSFORMERS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "transformers")
@@ -231,16 +232,19 @@ def load_classifier(checkpoint_path: str, device=None, logger=None):
     # CRITICAL: Register hook to enforce float32 before EVERY forward pass
     def enforce_float32(module, input):
         # Convert all parameters to float32 right before forward
-        for param in module.parameters():
+        # Do this recursively for all submodules
+        for name, param in module.named_parameters(recurse=False):
             if param.dtype != torch.float32:
                 param.data = param.data.to(dtype=torch.float32)
-        for buffer in module.buffers():
+        for name, buffer in module.named_buffers(recurse=False):
             if buffer.dtype != torch.int64 and buffer.dtype != torch.float32:
                 buffer.data = buffer.data.to(dtype=torch.float32)
     
-    # Register on all modules
+    # Register on all modules (including the root)
+    classifier.register_forward_pre_hook(enforce_float32)
     for m in classifier.modules():
-        m.register_forward_pre_hook(enforce_float32)
+        if m != classifier:  # Don't register twice on root
+            m.register_forward_pre_hook(enforce_float32)
     
     log.info("Classifier loaded (dtype: torch.float32)")
     
@@ -358,6 +362,18 @@ def generate_with_classifier_guidance(
     pipe.scheduler.set_timesteps(num_inference_steps, device=device)
     timesteps = pipe.scheduler.timesteps
     
+    # CRITICAL: Convert classifier to float32 ONCE at the start and keep it that way
+    # This prevents dtype conversion issues during the loop
+    classifier = classifier.float()  # Convert entire model to float32
+    # Explicitly convert all parameters and buffers to ensure they stay float32
+    with torch.no_grad():
+        for param in classifier.parameters():
+            param.data = param.data.to(dtype=torch.float32)
+        for buffer in classifier.buffers():
+            if buffer.dtype != torch.int64:
+                buffer.data = buffer.data.to(dtype=torch.float32)
+    log.info("Classifier converted to float32 for generation")
+    
     # Denoising loop with classifier guidance
     log.info(f"Starting generation with classifier guidance (scale={classifier_scale})...")
     log.info(f"Total steps: {num_inference_steps}, Target emotion: {EMOTIONS[target_emotion_idx]}")
@@ -394,56 +410,82 @@ def generate_with_classifier_guidance(
         # Ensure timestep is in float32 to match classifier
         t_expanded = t.expand(1).to(dtype=torch.float32)  # [1]
         
-        # Forward pass through classifier (with gradients enabled)
-        # CRITICAL: Force all parameters to float32 right before forward pass
-        # This ensures nothing has been converted to float16
-        with torch.no_grad():
-            for name, param in classifier.named_parameters():
-                if param.dtype != torch.float32:
-                    param.data = param.data.to(dtype=torch.float32)
-            for name, buffer in classifier.named_buffers():
-                if buffer.dtype != torch.int64 and buffer.dtype != torch.float32:
-                    buffer.data = buffer.data.to(dtype=torch.float32)
-        
-        try:
-            # Log input dtypes for debugging
-            if log.isEnabledFor(logging.DEBUG) and i == 0:
-                log.debug(f"Classifier input - latents: {latents_for_classifier.dtype}, timesteps: {t_expanded.dtype}")
-                # Check first layer dtype
-                first_conv = classifier.conv1
-                log.debug(f"First conv weight dtype: {first_conv.weight.dtype}, bias dtype: {first_conv.bias.dtype if first_conv.bias is not None else 'None'}")
-            
-            # CRITICAL: Ensure classifier is in float32 mode before calling
-            # Convert all parameters one more time right before forward
+        # CRITICAL: Disable autocast for classifier to prevent dtype conversion
+        # Autocast might convert the classifier to float16
+        with torch.cuda.amp.autocast(enabled=False):
+            # Forward pass through classifier (with gradients enabled)
+            # CRITICAL: Force all parameters to float32 right before forward pass
+            # This ensures nothing has been converted to float16
             with torch.no_grad():
-                for param in classifier.parameters():
+                for name, param in classifier.named_parameters():
                     if param.dtype != torch.float32:
                         param.data = param.data.to(dtype=torch.float32)
+                for name, buffer in classifier.named_buffers():
+                    if buffer.dtype != torch.int64 and buffer.dtype != torch.float32:
+                        buffer.data = buffer.data.to(dtype=torch.float32)
             
-            logits = classifier(latents_for_classifier, t_expanded)  # [1, 8]
-        except RuntimeError as e:
-            if "dtype" in str(e).lower() or "Half" in str(e) or "Float" in str(e):
-                # Debug: check classifier dtype
-                log.error(f"Dtype mismatch error at step {i+1}: {e}")
-                log.error(f"Latents dtype: {latents_for_classifier.dtype}, shape: {latents_for_classifier.shape}")
-                log.error(f"Timesteps dtype: {t_expanded.dtype}, shape: {t_expanded.shape}")
-                
-                # Check all layer dtypes
-                log.error("Checking classifier layer dtypes:")
+            # Convert ALL parameters and buffers to float32 IN PLACE
+            # Do this module by module to ensure we catch everything
+            with torch.no_grad():
+                # Convert Conv2d layers explicitly
                 for name, module in classifier.named_modules():
-                    if hasattr(module, 'weight') and module.weight is not None:
-                        log.error(f"  {name}.weight: {module.weight.dtype}")
-                    if hasattr(module, 'bias') and module.bias is not None:
-                        log.error(f"  {name}.bias: {module.bias.dtype}")
-                    if isinstance(module, (torch.nn.BatchNorm2d, torch.nn.BatchNorm1d)):
-                        if hasattr(module, 'running_mean') and module.running_mean is not None:
-                            log.error(f"  {name}.running_mean: {module.running_mean.dtype}")
-                        if hasattr(module, 'running_var') and module.running_var is not None:
-                            log.error(f"  {name}.running_var: {module.running_var.dtype}")
-                
-                raise
-            else:
-                raise
+                    if isinstance(module, torch.nn.Conv2d):
+                        if module.weight.dtype != torch.float32:
+                            module.weight.data = module.weight.data.to(dtype=torch.float32)
+                        if module.bias is not None and module.bias.dtype != torch.float32:
+                            module.bias.data = module.bias.data.to(dtype=torch.float32)
+                    elif isinstance(module, torch.nn.Linear):
+                        if module.weight.dtype != torch.float32:
+                            module.weight.data = module.weight.data.to(dtype=torch.float32)
+                        if module.bias is not None and module.bias.dtype != torch.float32:
+                            module.bias.data = module.bias.data.to(dtype=torch.float32)
+                    elif isinstance(module, (torch.nn.BatchNorm2d, torch.nn.BatchNorm1d)):
+                        if module.weight is not None and module.weight.dtype != torch.float32:
+                            module.weight.data = module.weight.data.to(dtype=torch.float32)
+                        if module.bias is not None and module.bias.dtype != torch.float32:
+                            module.bias.data = module.bias.data.to(dtype=torch.float32)
+                        if module.running_mean is not None and module.running_mean.dtype != torch.float32:
+                            module.running_mean.data = module.running_mean.data.to(dtype=torch.float32)
+                        if module.running_var is not None and module.running_var.dtype != torch.float32:
+                            module.running_var.data = module.running_var.data.to(dtype=torch.float32)
+                    # Also convert any other parameters
+                    for param_name, param in module.named_parameters(recurse=False):
+                        if param.dtype != torch.float32:
+                            param.data = param.data.to(dtype=torch.float32)
+                    for buffer_name, buffer in module.named_buffers(recurse=False):
+                        if buffer.dtype != torch.int64 and buffer.dtype != torch.float32:
+                            buffer.data = buffer.data.to(dtype=torch.float32)
+            
+            # Ensure inputs are also float32
+            latents_for_classifier = latents_for_classifier.to(dtype=torch.float32)
+            t_expanded = t_expanded.to(dtype=torch.float32)
+            
+            try:
+                # Forward pass must be inside autocast disabled context
+                logits = classifier(latents_for_classifier, t_expanded)  # [1, 8]
+            except RuntimeError as e:
+                if "dtype" in str(e).lower() or "Half" in str(e) or "Float" in str(e):
+                    # Debug: check classifier dtype
+                    log.error(f"Dtype mismatch error at step {i+1}: {e}")
+                    log.error(f"Latents dtype: {latents_for_classifier.dtype}, shape: {latents_for_classifier.shape}")
+                    log.error(f"Timesteps dtype: {t_expanded.dtype}, shape: {t_expanded.shape}")
+                    
+                    # Check all layer dtypes
+                    log.error("Checking classifier layer dtypes:")
+                    for name, module in classifier.named_modules():
+                        if hasattr(module, 'weight') and module.weight is not None:
+                            log.error(f"  {name}.weight: {module.weight.dtype}")
+                        if hasattr(module, 'bias') and module.bias is not None:
+                            log.error(f"  {name}.bias: {module.bias.dtype}")
+                        if isinstance(module, (torch.nn.BatchNorm2d, torch.nn.BatchNorm1d)):
+                            if hasattr(module, 'running_mean') and module.running_mean is not None:
+                                log.error(f"  {name}.running_mean: {module.running_mean.dtype}")
+                            if hasattr(module, 'running_var') and module.running_var is not None:
+                                log.error(f"  {name}.running_var: {module.running_var.dtype}")
+                    
+                    raise
+                else:
+                    raise
         
         # Get probabilities and log probabilities
         probs = F.softmax(logits, dim=1)  # [1, 8]
@@ -550,8 +592,10 @@ def generate_with_classifier_guidance(
     # Decode latents to image
     # Scale back using VAE scaling factor (more robust than hardcoded value)
     latents = 1 / pipe.vae.config.scaling_factor * latents
+    # CRITICAL: Convert latents back to float16 for VAE (VAE expects float16, latents are float32 from classifier)
+    latents_for_vae = latents.to(dtype=text_embeddings.dtype)
     with torch.no_grad():
-        image = pipe.vae.decode(latents).sample
+        image = pipe.vae.decode(latents_for_vae).sample
     
     # Post-process image
     image = (image / 2 + 0.5).clamp(0, 1)
@@ -595,7 +639,7 @@ def main():
     parser.add_argument("--emotion_idx", type=int, required=True,
                        help="Target emotion index (0-7): 0=amusement, 1=anger, 2=awe, 3=contentment, 4=disgust, 5=excitement, 6=fear, 7=sadness")
     parser.add_argument("--classifier_path", type=str, default=None,
-                       help="Path to trained classifier checkpoint (default: /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/classifier_guidance/classifier_large.pt)")
+                       help="Path to trained classifier checkpoint (default: <repo_root>/weights/classifier_guidance/classifier_large.pt)")
     parser.add_argument("--output_path", type=str, default="output.png",
                        help="Output image path (default: output.png)")
     
@@ -641,7 +685,7 @@ def main():
     
     # Set default classifier path if not provided
     if args.classifier_path is None:
-        args.classifier_path = str(Path(STORAGE_BASE) / "Weights" / "classifier_guidance" / "classifier_large.pt")
+        args.classifier_path = str(Path(STORAGE_BASE) / "weights" / "classifier_guidance" / "classifier_large.pt")
     
     # Set default log directory if save_metrics is enabled
     if args.save_metrics and args.log_dir is None:

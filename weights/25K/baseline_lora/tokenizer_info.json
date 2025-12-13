@@ -1,0 +1,22 @@
+{
+  "emotion_tokens": [
+    "<amusement>",
+    "<awe>",
+    "<contentment>",
+    "<excitement>",
+    "<anger>",
+    "<disgust>",
+    "<fear>",
+    "<sadness>"
+  ],
+  "token_ids": {
+    "<amusement>": 49408,
+    "<awe>": 49409,
+    "<contentment>": 49410,
+    "<excitement>": 49411,
+    "<anger>": 49412,
+    "<disgust>": 49413,
+    "<fear>": 49414,
+    "<sadness>": 49415
+  }
+}

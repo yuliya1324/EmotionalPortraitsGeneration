@@ -36,19 +36,31 @@ ENV/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Model outputs
+# Model outputs (but keep weights directory)
 output/
 *.bin
-*.safetensors
+# Allow weights directory
+!weights/
+!weights/**/*.safetensors
+!weights/**/*.pt
+!weights/**/*.pth
+!weights/**/*.bin
+!weights/**/*.json
+!weights/**/*.md
 *.ckpt
-*.pt
-*.pth
 
-# Generated images
+# Generated images (but keep evaluation results)
 *.png
 *.jpg
 *.jpeg
 !README.md
+# Allow evaluation images
+!Evaluations/
+!Evaluations/**/*.png
+!Evaluations/**/*.jpg
+!Evaluations/**/*.jpeg
+!Evaluations/**/*.json
+!Evaluations/**/*.txt
 
 # Logs
 *.log
@@ -65,9 +77,9 @@ huggingface/
 # Accelerate
 accelerate_logs/
 
-
 # Experiment tracking
 wandb/
-# Generated images
+
+# Validation/test images (generated during evaluation)
 validation_images/
 test_images/

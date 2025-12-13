@@ -1,0 +1,61 @@
+============================================================
+EMOTION EVALUATION REPORT
+============================================================
+
+OVERALL METRICS:
+----------------------------------------
+  Emotion Accuracy: 16.00%
+  Emotion Strength: 0.1593
+  Correct Predictions: 32/200
+
+PER-EMOTION METRICS:
+----------------------------------------
+Emotion        Accuracy   Strength    Correct
+----------------------------------------
+amusement          8.0%     0.0800       2/25
+anger              4.0%     0.0446       1/25
+awe               52.0%     0.4842      13/25
+contentment       16.0%     0.1742       4/25
+disgust            8.0%     0.0604       2/25
+excitement         0.0%     0.0091       0/25
+fear              20.0%     0.2157       5/25
+sadness           20.0%     0.2064       5/25
+
+PROMPTS USED:
+----------------------------------------
+   1. A park at sunset
+   2. A beach with waves
+   3. A dense forest
+   4. A busy city street
+   5. A snowy mountain peak
+   6. A cozy living room
+   7. A flower garden
+   8. An old stone bridge
+   9. A calm lake at dawn
+  10. A golden wheat field
+  11. A rainy window view
+  12. A starry night sky
+  13. An abandoned building
+  14. A crowded marketplace
+  15. A quiet library
+  16. A misty morning road
+  17. A carnival at night
+  18. A desert landscape
+  19. A waterfall in jungle
+  20. A winter cabin
+  21. A train station platform
+  22. A rooftop city view
+  23. A candlelit dinner table
+  24. A playground at dusk
+  25. A foggy graveyard
+
+EMOTIONS:
+----------------------------------------
+  - amusement
+  - anger
+  - awe
+  - contentment
+  - disgust
+  - excitement
+  - fear
+  - sadness

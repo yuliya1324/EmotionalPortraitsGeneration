@@ -1,0 +1,61 @@
+============================================================
+EMOTION EVALUATION REPORT
+============================================================
+
+OVERALL METRICS:
+----------------------------------------
+  Emotion Accuracy: 9.50%
+  Emotion Strength: 0.0945
+  Correct Predictions: 19/200
+
+PER-EMOTION METRICS:
+----------------------------------------
+Emotion        Accuracy   Strength    Correct
+----------------------------------------
+amusement          8.0%     0.0883       2/25
+anger              0.0%     0.0059       0/25
+awe               40.0%     0.4148      10/25
+contentment        4.0%     0.0529       1/25
+disgust            4.0%     0.0179       1/25
+excitement         0.0%     0.0000       0/25
+fear               8.0%     0.0794       2/25
+sadness           12.0%     0.0971       3/25
+
+PROMPTS USED:
+----------------------------------------
+   1. A quiet residential street with parked cars and trees
+   2. A narrow alley between old buildings with a few posters on the walls
+   3. A wide city square with a fountain and surrounding cafés
+   4. A subway platform with signs, benches, and overhead lighting
+   5. The inside of an empty train carriage with seats and windows
+   6. A small convenience store aisle with shelves of snacks and drinks
+   7. An outdoor market with stalls of fruits, vegetables, and people walking
+   8. A calm beach with gentle waves and a cloudy sky
+   9. A rocky shoreline with tide pools and scattered seaweed
+  10. A forest path with tall trees and sunlight filtering through leaves
+  11. A grassy field with a lone tree under an open sky
+  12. A mountain lake with reflections of peaks in the water
+  13. A wooden cabin in the snow with smoke coming from a chimney
+  14. A desert road stretching into the distance with a few shrubs
+  15. A bridge over a river with boats passing underneath
+  16. A harbor with docked boats, ropes, and shipping containers
+  17. A rooftop view of a city skyline at dusk
+  18. A park with a playground, swings, and a bench nearby
+  19. A museum gallery with paintings and soft lighting
+  20. A library aisle with tall bookshelves and reading tables
+  21. A classroom with desks, a whiteboard, and a window
+  22. A kitchen counter with utensils, a cutting board, and a bowl of fruit
+  23. A living room with a sofa, a lamp, and curtains by a window
+  24. A long hallway in a large building with doors and ceiling lights
+  25. A stairwell with metal railings and concrete walls
+
+EMOTIONS:
+----------------------------------------
+  - amusement
+  - anger
+  - awe
+  - contentment
+  - disgust
+  - excitement
+  - fear
+  - sadness

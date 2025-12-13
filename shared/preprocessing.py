@@ -13,7 +13,10 @@ from tqdm import tqdm
 import random
 
 # Set HuggingFace cache directory
-STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
+# Use environment variable or default to repository root
+from pathlib import Path
+REPO_ROOT = Path(__file__).parent.parent.parent.absolute()
+STORAGE_BASE = os.getenv("EMOTIONAL_PORTRAITS_BASE", str(REPO_ROOT))
 CACHE_DIR = os.path.join(STORAGE_BASE, "cache")
 os.environ["HF_HOME"] = os.path.join(CACHE_DIR, "huggingface")
 os.environ["HF_DATASETS_CACHE"] = os.path.join(CACHE_DIR, "huggingface", "datasets")

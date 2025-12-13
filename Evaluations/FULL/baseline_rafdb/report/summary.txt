@@ -1,0 +1,41 @@
+============================================================
+EMOTION EVALUATION REPORT
+============================================================
+
+OVERALL METRICS:
+----------------------------------------
+  Emotion Accuracy: 32.86%
+  Emotion Strength: 0.3541
+  Correct Predictions: 23/70
+
+PER-EMOTION METRICS:
+----------------------------------------
+Emotion        Accuracy   Strength    Correct
+----------------------------------------
+anger             50.0%     0.4460       5/10
+disgust            0.0%     0.0103       0/10
+fear              10.0%     0.1722       1/10
+happy             70.0%     0.7290       7/10
+sad               10.0%     0.2298       1/10
+surprise           0.0%     0.0359       0/10
+neutral           90.0%     0.8553       9/10
+
+PROMPTS USED:
+----------------------------------------
+   1. a photorealistic human portrait depicting anger, head and shoulders, looking at camera
+   2. a photorealistic human portrait depicting disgust, head and shoulders, looking at camera
+   3. a photorealistic human portrait depicting fear, head and shoulders, looking at camera
+   4. a photorealistic human portrait depicting happy, head and shoulders, looking at camera
+   5. a photorealistic human portrait depicting sad, head and shoulders, looking at camera
+   6. a photorealistic human portrait depicting surprise, head and shoulders, looking at camera
+   7. a photorealistic human portrait depicting neutral, head and shoulders, looking at camera
+
+EMOTIONS:
+----------------------------------------
+  - anger
+  - disgust
+  - fear
+  - happy
+  - sad
+  - surprise
+  - neutral

@@ -14,12 +14,15 @@ sys.path.insert(0, str(REPO_ROOT / "approaches" / "classifier_guidance" / "src")
 
 from model import EmotionLatentClassifier
 
-STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
+# Use environment variable or default to repository root
+from pathlib import Path
+REPO_ROOT = Path(__file__).parent.parent.parent.parent.absolute()
+STORAGE_BASE = os.getenv("EMOTIONAL_PORTRAITS_BASE", str(REPO_ROOT))
 EMOTIONS = ['amusement', 'anger', 'awe', 'contentment', 'disgust', 'excitement', 'fear', 'sadness']
 
 def analyze_checkpoint():
     """Analyze the saved checkpoint."""
-    checkpoint_path = Path(STORAGE_BASE) / "Weights" / "classifier_guidance" / "classifier.pt"
+    checkpoint_path = Path(STORAGE_BASE) / "weights" / "classifier_guidance" / "classifier.pt"
     
     if not checkpoint_path.exists():
         print(f"❌ Checkpoint not found: {checkpoint_path}")

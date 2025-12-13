@@ -10,11 +10,12 @@ import argparse
 import subprocess
 from pathlib import Path
 
-# Base storage paths
-STORAGE_BASE = "/Data/yash.bhardwaj/EmotionalPortraitsGeneration"
-WEIGHTS_BASE = os.path.join(STORAGE_BASE, "Weights")
-LOGS_BASE = os.path.join(STORAGE_BASE, "Logs")
-DATASETS_BASE = os.path.join(STORAGE_BASE, "Datasets")
+# Base storage paths - use environment variable or default to repository root
+REPO_ROOT = Path(__file__).parent.absolute()
+STORAGE_BASE = os.getenv("EMOTIONAL_PORTRAITS_BASE", str(REPO_ROOT))
+WEIGHTS_BASE = os.path.join(STORAGE_BASE, "weights")
+LOGS_BASE = os.path.join(STORAGE_BASE, "logs")
+DATASETS_BASE = os.path.join(STORAGE_BASE, "datasets")
 
 # Repository root
 REPO_ROOT = Path(__file__).parent.absolute()

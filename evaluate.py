@@ -494,31 +494,31 @@ def generate_images(
                         track_metrics=False,
                         use_wandb=False,
                     )
-                    elif task == "label2image" or approach in ["emoset_label2image", "portraits"]:
+                elif task == "label2image" or approach in ["emoset_label2image", "portraits"]:
                     # Label-to-image: use emotion as the prompt
-                        # For portraits approach, use portrait prompt template
-                        if approach == "portraits":
-                            full_prompt = PORTRAIT_PROMPT_TEMPLATE.format(emotion=emotion)
-                            natural_prompt = full_prompt
-                        else:
-                    full_prompt = emotion
-                    natural_prompt = prompt_template.format(prompt=prompt, emotion=emotion)
+                    # For portraits approach, use portrait prompt template
+                    if approach == "portraits":
+                        full_prompt = PORTRAIT_PROMPT_TEMPLATE.format(emotion=emotion)
+                        natural_prompt = full_prompt
+                    else:
+                        full_prompt = emotion
+                        natural_prompt = prompt_template.format(prompt=prompt, emotion=emotion)
                     image = pipe(
                         prompt=full_prompt,
                         num_inference_steps=num_inference_steps,
                         guidance_scale=guidance_scale,
                         generator=generator,
                     ).images[0]
-                    elif task == "multimodal" or approach in ["emoset_multicond", "emoset_multicond_classifier_001", "emoset_multicond_classifier_01"]:
-                        # Multimodal: use emotion embedding with prompt (E_cond = [e_emo; E_text])
+                elif task == "multimodal" or approach in ["emoset_multicond", "emoset_multicond_classifier_001", "emoset_multicond_classifier_01"]:
+                    # Multimodal: use emotion embedding with prompt (E_cond = [e_emo; E_text])
                     if emotion_embedding is None:
                         raise ValueError("emotion_embedding is required for multimodal task")
                     # Import generate_with_emotion if available
                     try:
-                            import sys
-                            scripts_path = os.path.join(REPO_ROOT, "scripts")
-                            if scripts_path not in sys.path:
-                                sys.path.insert(0, scripts_path)
+                        import sys
+                        scripts_path = os.path.join(REPO_ROOT, "scripts")
+                        if scripts_path not in sys.path:
+                            sys.path.insert(0, scripts_path)
                         from train_text_to_image_lora import generate_with_emotion
                         image = generate_with_emotion(
                             pipe, 
@@ -1117,7 +1117,7 @@ Examples:
         weights_dir = None
     else:
         # Standard weights format: in Weights/{size}/{approach}
-    weights_dir = os.path.join(STORAGE_BASE, "Weights", size_normalized, args.approach)
+        weights_dir = os.path.join(STORAGE_BASE, "Weights", size_normalized, args.approach)
     
     # Always save evaluation images in validation_images/{size}/{approach} in repository root
     if args.images_dir:
@@ -1368,7 +1368,7 @@ Examples:
         import gc
         gc.collect()
         if torch.cuda.is_available():
-        torch.cuda.empty_cache()
+            torch.cuda.empty_cache()
             print(f"💾 Freed generation models. GPU memory: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
     
     if not results:

@@ -21,7 +21,7 @@ Generate captions for a dataset variant using BLIP.
 ```bash
 python shared/src/preprocessing.py \
     --subset_size 30000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
+    --output_dir <repo_root>/datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42
 ```
@@ -33,8 +33,8 @@ python shared/src/preprocessing.py \
     --dataset_name Woleek/EmoSet-118K \
     --split train \
     --subset_size 30000 \
-    --full_dataset_dir /Data/yash.bhardwaj/datasets/emoset_full \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
+    --full_dataset_dir /path/to/datasets/emoset_full \
+    --output_dir <repo_root>/datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42 \
     --model_name Salesforce/blip-image-captioning-base
@@ -128,13 +128,13 @@ python run_experiment.py train \
 
 ### What Gets Saved
 
-- **Weights**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora/`
+- **weights**: `<repo_root>/weights/30K/baseline_lora/`
   - `adapter_model.safetensors` - LoRA weights
   - `adapter_config.json` - LoRA configuration
   - `learned_embeds.bin` - Learned emotion token embeddings
   - `tokenizer_info.json` - Tokenizer information
 
-- **Logs**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Logs/30K/baseline_lora/`
+- **logs**: `<repo_root>/logs/30K/baseline_lora/`
   - Validation images (every `validation_steps`)
   - Training logs
   - Loss history
@@ -170,10 +170,10 @@ python run_experiment.py inference \
 
 ### What This Does
 
-1. Loads trained model from `Weights/30K/baseline_lora/`
+1. Loads trained model from `weights/30K/baseline_lora/`
 2. Generates the same prompt with all 8 emotion tokens
 3. Creates a grid image showing all emotions
-4. Saves to `Logs/30K/baseline_lora/inference/`
+4. Saves to `logs/30K/baseline_lora/inference/`
 
 ### Emotion Tokens
 
@@ -197,7 +197,7 @@ The model generates images for these 8 emotions:
 # 1. Preprocess dataset (one-time, takes ~2-4 hours)
 python shared/src/preprocessing.py \
     --subset_size 30000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
+    --output_dir <repo_root>/datasets/emoset_captioned_30k \
     --batch_size 8 \
     --seed 42
 
@@ -223,7 +223,7 @@ python run_experiment.py inference \
 # 1. Preprocess
 python shared/src/preprocessing.py \
     --subset_size 10000 \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_10k
+    --output_dir <repo_root>/datasets/emoset_captioned_10k
 
 # 2. Train
 python run_experiment.py train \
@@ -249,9 +249,9 @@ You can also run scripts directly without `run_experiment.py`:
 
 ```bash
 accelerate launch approaches/baseline_lora/src/train.py \
-    --data_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k \
-    --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora \
-    --log_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Logs/30K/baseline_lora \
+    --data_dir <repo_root>/datasets/emoset_captioned_30k \
+    --output_dir <repo_root>/weights/30K/baseline_lora \
+    --log_dir <repo_root>/logs/30K/baseline_lora \
     --batch_size 8 \
     --num_epochs 7
 ```
@@ -261,9 +261,9 @@ accelerate launch approaches/baseline_lora/src/train.py \
 ```bash
 python approaches/baseline_lora/src/inference.py \
     --prompt "A living room" \
-    --lora_path /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora \
-    --learned_embeds_path /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora/learned_embeds.bin \
-    --tokenizer_info_path /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora/tokenizer_info.json
+    --lora_path <repo_root>/weights/30K/baseline_lora \
+    --learned_embeds_path <repo_root>/weights/30K/baseline_lora/learned_embeds.bin \
+    --tokenizer_info_path <repo_root>/weights/30K/baseline_lora/tokenizer_info.json
 ```
 
 ---
@@ -275,10 +275,10 @@ python approaches/baseline_lora/src/inference.py \
 If you get `FileNotFoundError` for dataset:
 ```bash
 # Check if dataset exists
-ls /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/
+ls <repo_root>/datasets/
 
 # If not, run preprocessing first
-python shared/src/preprocessing.py --subset_size 30000 --output_dir /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/emoset_captioned_30k
+python shared/src/preprocessing.py --subset_size 30000 --output_dir <repo_root>/datasets/emoset_captioned_30k
 ```
 
 ### Out of Memory
@@ -305,7 +305,7 @@ If training was interrupted:
 python run_experiment.py train \
     --approach baseline_lora \
     --dataset-size 30K \
-    --resume-from /Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/30K/baseline_lora
+    --resume-from <repo_root>/weights/30K/baseline_lora
 ```
 
 ---
@@ -313,9 +313,9 @@ python run_experiment.py train \
 ## Storage Locations
 
 All outputs are organized in:
-- **Datasets**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Datasets/`
-- **Weights**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Weights/{DatasetSize}/{Approach}/`
-- **Logs**: `/Data/yash.bhardwaj/EmotionalPortraitsGeneration/Logs/{DatasetSize}/{Approach}/`
+- **datasets**: `<repo_root>/datasets/`
+- **weights**: `<repo_root>/weights/{DatasetSize}/{Approach}/`
+- **logs**: `<repo_root>/logs/{DatasetSize}/{Approach}/`
 
 ---
 

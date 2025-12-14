@@ -43,11 +43,8 @@ if EMOTIONCLIP_PATH is None:
         if os.path.exists(path):
             EMOTIONCLIP_PATH = path
             break
-    if EMOTIONCLIP_PATH is None:
-        raise ValueError(
-            "EMOTIONCLIP_PATH not set and EmotionCLIP not found in common locations. "
-            "Please set EMOTIONCLIP_PATH environment variable or install EmotionCLIP."
-        )
+    # Don't raise error here - EmotionCLIP is only needed for EmoSet evaluation
+    # It will be checked when actually needed in load_emotionclip_model()
 
 # ============================================================================
 # Evaluation Prompts
@@ -139,6 +136,12 @@ def setup_device():
 
 def setup_emotionclip():
     """Clone EmotionCLIP repository if not present."""
+    if EMOTIONCLIP_PATH is None:
+        raise ValueError(
+            "EmotionCLIP is required for EmoSet evaluation. "
+            "Please set EMOTIONCLIP_PATH environment variable or install EmotionCLIP. "
+            "See README.md for installation instructions."
+        )
     if not os.path.exists(EMOTIONCLIP_PATH):
         print(f"Cloning EmotionCLIP to {EMOTIONCLIP_PATH}...")
         os.makedirs(os.path.dirname(EMOTIONCLIP_PATH), exist_ok=True)
